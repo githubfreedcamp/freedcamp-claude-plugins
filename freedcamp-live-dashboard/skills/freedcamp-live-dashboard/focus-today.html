@@ -1,0 +1,695 @@
+<title>Your Focus Today</title>
+<style>
+:root{--page:#ebeef2;--surface:#fff;--sunken:#f7f8fa;--line:#e7eaf0;--line-strong:#aebacc;--text:#252e3d;--muted:#5c7499;--accent:#1f6fdb;--btn:#1f6fdb;--btn-text:#fff;--accent-tint:#e8f1fe;--red:#c8372b;--red-tint:#fdecea;--amber:#8a6a00;--amber-tint:#fbf3d9;--green:#1e8a4c;--green-tint:#e5f5ec;--pink:#c41e5c;--pink-tint:#fce7ef;--shadow:0 20px 60px rgba(20,30,50,.25);--backdrop:rgba(20,26,36,.45);--skel:#eef1f5}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--page:#11151c;--surface:#1a202b;--sunken:#212836;--line:#2b3444;--line-strong:#46536a;--text:#e8ecf2;--muted:#9aa9c0;--accent:#6aa8ff;--accent-tint:#1c2c46;--red:#ff8277;--red-tint:#3a1f1f;--amber:#f0c445;--amber-tint:#352d16;--green:#5fd08f;--green-tint:#16301f;--pink:#ff6e9f;--pink-tint:#3a1a27;--shadow:0 20px 60px rgba(0,0,0,.6);--backdrop:rgba(0,0,0,.6);--skel:#263042}}
+:root[data-theme="dark"]{--page:#11151c;--surface:#1a202b;--sunken:#212836;--line:#2b3444;--line-strong:#46536a;--text:#e8ecf2;--muted:#9aa9c0;--accent:#6aa8ff;--accent-tint:#1c2c46;--red:#ff8277;--red-tint:#3a1f1f;--amber:#f0c445;--amber-tint:#352d16;--green:#5fd08f;--green-tint:#16301f;--pink:#ff6e9f;--pink-tint:#3a1a27;--shadow:0 20px 60px rgba(0,0,0,.6);--backdrop:rgba(0,0,0,.6);--skel:#263042}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--page);color:var(--text);font:15px/1.5 "Plus Jakarta Sans",system-ui,sans-serif}
+.wrap{max-width:760px;margin:0 auto;padding:16px max(16px,env(safe-area-inset-left)) 32px max(16px,env(safe-area-inset-right))}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+button:disabled{cursor:default;opacity:.55}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+header.top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px;padding:20px 24px 18px}
+.brand{display:flex;align-items:center;gap:14px;min-width:0}
+.logo{flex:none;width:40px;height:40px;border-radius:10px;background:#2780f8;color:#fff;display:flex;align-items:center;justify-content:center}
+h1{margin:0;font-size:20px;font-weight:800;letter-spacing:-.01em}
+.sub{color:var(--muted);font-size:13px}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:9px;padding:7px 12px;font-size:13px;font-weight:600}
+.btn:hover:not(:disabled){border-color:var(--line-strong)}
+.btn.primary{background:var(--btn);border-color:var(--btn);color:var(--btn-text)}
+.btn.ghost{background:transparent}
+.banner{margin:0 24px 16px;padding:10px 14px;border-radius:10px;background:var(--amber-tint);color:var(--amber);font-size:14px;font-weight:600}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:0 24px 20px}
+.tile{display:block;text-decoration:none;color:var(--text);background:var(--sunken);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.tile b{display:block;font-size:24px;font-weight:800;line-height:1.1}
+.tile span{font-size:12px;color:var(--muted);font-weight:600}
+.tile.red b{color:var(--red)}.tile.pink b{color:var(--pink)}.tile.blue b{color:var(--accent)}
+@media (max-width:560px){.tiles{grid-template-columns:repeat(2,1fr)}}
+.band{border-top:1px solid var(--line)}
+.band>h2{margin:0;padding:10px 24px;background:var(--sunken);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);display:flex;align-items:center;gap:8px}
+.band>h2 .n{font-family:"IBM Plex Mono",monospace;color:var(--text)}
+.list{list-style:none;margin:0;padding:0}
+.row,.notif{display:flex;gap:12px;padding:12px 24px;border-top:1px solid var(--line)}
+.list>li:first-child{border-top:0}
+.check{flex:none;width:22px;height:22px;margin-top:1px;border-radius:50%;border:2px solid var(--line-strong);background:transparent;color:transparent;display:flex;align-items:center;justify-content:center;padding:0}
+.check:hover{border-color:var(--green);color:var(--green)}
+.row.done .check{background:var(--green);border-color:var(--green);color:#fff}
+.row.done .tlink{text-decoration:line-through;color:var(--muted)}
+.rbody,.nbody{min-width:0;flex:1}
+.rtitle{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px}
+.tlink{border:0;background:none;padding:0;text-align:left;font-weight:600;color:var(--text)}
+.tlink:hover{color:var(--accent);text-decoration:underline}
+.ext{font-size:12px;font-weight:600;text-decoration:none}
+.ext:hover{text-decoration:underline}
+.tag{font-family:"IBM Plex Mono",monospace;font-size:11px;font-weight:500;padding:1px 6px;border-radius:5px;background:var(--accent-tint);color:var(--accent)}
+.meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin-top:4px;font-size:12px;color:var(--muted)}
+.pill{display:inline-block;padding:1px 8px;border-radius:999px;font-size:11px;font-weight:700;background:var(--sunken);color:var(--muted);border:1px solid var(--line)}
+.pill.red{background:var(--red-tint);color:var(--red);border-color:transparent}
+.pill.amber,.pill.p2{background:var(--amber-tint);color:var(--amber);border-color:transparent}
+.pill.p3{background:var(--red-tint);color:var(--red);border-color:transparent}
+.pill.green{background:var(--green-tint);color:var(--green);border-color:transparent}
+.pill.blue{background:var(--accent-tint);color:var(--accent);border-color:transparent}
+.pill.pink{background:var(--pink-tint);color:var(--pink);border-color:transparent}
+.empty{padding:14px 24px;color:var(--muted);font-size:14px}
+.err{padding:14px 24px;color:var(--red);font-size:14px;font-weight:600}
+.more{display:block;width:100%;border:0;border-top:1px solid var(--line);background:none;padding:10px 24px;text-align:left;font-size:13px;font-weight:700;color:var(--accent)}
+.avatar{flex:none;width:30px;height:30px;border-radius:50%;background:var(--accent-tint);color:var(--accent);font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.nline{font-size:14px}
+.quote{margin:6px 0 0;padding:6px 10px;border-left:3px solid var(--line-strong);color:var(--text);background:var(--sunken);border-radius:0 8px 8px 0;font-size:13px}
+.acts{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.composer{margin-top:8px;display:grid;gap:6px}
+textarea,input[type=text],input[type=date]{width:100%;border:1px solid var(--line);border-radius:9px;background:var(--surface);padding:8px 10px;font-size:14px}
+textarea{min-height:84px;resize:vertical}
+.status{font-size:12px;color:var(--muted);min-height:1em}
+.status.bad{color:var(--red)}
+.ask{padding:14px 24px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.askout{padding:0 24px 16px}
+.summary{margin:0 0 10px;font-weight:600}
+.acard{display:flex;gap:12px;padding:12px;border:1px solid var(--line);border-radius:12px;margin-bottom:8px;background:var(--surface)}
+.acard .num{flex:none;width:24px;height:24px;border-radius:50%;background:var(--accent-tint);color:var(--accent);font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center}
+.why{margin-top:4px;font-size:13px}
+.dateline{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:8px}
+.dateline input{width:auto}
+.applied{color:var(--green);font-weight:700;font-size:12px}
+.hint{font-size:12px;color:var(--muted)}
+.foot{padding:12px 24px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
+.skel{height:14px;border-radius:6px;background:var(--skel);margin:14px 24px;animation:pulse 1.2s ease-in-out infinite}
+.skel.w60{width:60%}.skel.w40{width:40%}.skel.w80{width:80%}
+@keyframes pulse{50%{opacity:.5}}
+@media (prefers-reduced-motion:reduce){.skel{animation:none}}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--text);color:var(--surface);padding:9px 14px;border-radius:10px;font-size:13px;font-weight:600;max-width:90vw}
+.toast:empty{display:none}
+.modal{position:fixed;inset:0;display:flex;align-items:flex-start;justify-content:center;padding:40px max(16px,env(safe-area-inset-left));z-index:10;overflow:auto}
+.modal[hidden]{display:none}
+.backdrop{position:fixed;inset:0;background:var(--backdrop)}
+.dialog{position:relative;width:100%;max-width:680px;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:22px 24px}
+.dialog:focus{outline:none}
+.x{position:absolute;top:12px;right:12px;width:32px;height:32px;border-radius:8px;border:1px solid var(--line);background:var(--surface);font-size:18px;line-height:1}
+.dialog h2{margin:0 36px 4px 0;font-size:19px;font-weight:800}
+.msec{margin-top:18px}
+.msec h3{margin:0 0 6px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.desc,.ctext{white-space:pre-wrap;overflow-wrap:anywhere;font-size:14px}
+.comment{padding:10px 0;border-top:1px solid var(--line)}
+.comment:first-of-type{border-top:0}
+.chead{font-size:12px;color:var(--muted);margin-bottom:2px}
+.chead b{color:var(--text)}
+.subs{list-style:none;margin:0;padding:0;font-size:14px}
+.subs li{padding:3px 0}
+.subs .ok{color:var(--green);font-weight:700}
+</style>
+<meta name="claude:viewport-fit-sides" content="true">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+
+<div class="wrap">
+  <div class="card">
+    <header class="top">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+        <div><h1>Your focus today</h1><div class="sub" id="sub">Loading your Freedcamp...</div></div>
+      </div>
+      <button class="btn needs-mcp" id="refresh" type="button">Refresh</button>
+    </header>
+    <div class="banner" id="banner" role="alert" hidden></div>
+    <nav class="tiles needs-mcp" aria-label="Counts">
+      <a class="tile red" href="#sec-overdue"><b id="t-overdue">-</b><span>Overdue</span></a>
+      <a class="tile blue" href="#sec-next7"><b id="t-next7">-</b><span>Due next 7 days</span></a>
+      <a class="tile" href="#sec-inprog"><b id="t-inprog">-</b><span>In progress</span></a>
+      <a class="tile pink" href="#sec-waiting"><b id="t-waiting">-</b><span>Waiting on you</span></a>
+    </nav>
+    <div class="needs-mcp">
+      <section class="band" id="sec-ask"><h2>Ask Claude what is next</h2>
+        <div class="ask">
+          <button class="btn primary" type="button" data-ask="plan">Plan my day</button>
+          <button class="btn" type="button" data-ask="dates">Suggest dates for my overdue tasks</button>
+          <span class="status" id="ask-status" aria-live="polite"></span>
+        </div>
+        <div class="askout" id="ask-out"></div>
+      </section>
+      <section class="band" id="sec-overdue"><h2>Overdue <span class="n" id="c-overdue"></span></h2><div id="l-overdue"><div class="skel w80"></div><div class="skel w60"></div></div></section>
+      <section class="band" id="sec-next7"><h2>Due next 7 days <span class="n" id="c-next7"></span></h2><div id="l-next7"><div class="skel w60"></div></div></section>
+      <section class="band" id="sec-inprog"><h2>In progress <span class="n" id="c-inprog"></span></h2><div id="l-inprog"><div class="skel w40"></div></div></section>
+      <section class="band" id="sec-waiting"><h2>Waiting on you <span class="n" id="c-waiting"></span></h2><div id="l-waiting"><div class="skel w60"></div></div></section>
+      <section class="band" id="sec-updates"><h2>Recent updates <span class="n" id="c-updates"></span></h2><div id="l-updates"><div class="skel w80"></div><div class="skel w40"></div></div></section>
+    </div>
+    <div class="foot" id="foot">Completing a task, posting a comment and applying a date change your real Freedcamp account.</div>
+  </div>
+</div>
+
+<div class="modal" id="modal" hidden>
+  <div class="backdrop" data-close></div>
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="m-title" tabindex="-1" id="dialog">
+    <button class="x" type="button" data-close aria-label="Close">&times;</button>
+    <div id="m-body"></div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+  'use strict';
+  const $ = (s) => document.querySelector(s);
+  const ZW = /[\u200B-\u200D\u2060\uFEFF]/g;
+  const PRIO = { 1: 'Low', 2: 'Medium', 3: 'High' };
+  const APP_NOUN = { 2: 'a task', 3: 'a discussion', 4: 'a milestone', 6: 'a file', 13: 'an issue', 14: 'a wiki', 19: 'a calendar event' };
+  const PROP_LABEL = { assigned_to_id: 'assignee', assigned_ids: 'assignees', due_date: 'due date', start_date: 'start date', date_start: 'start date', date_end: 'end date', task_group_id: 'list', cs_id: 'status', r_rule: 'recurrence', r_rule_str: 'recurrence', cf_tpl_id: 'custom fields', f_all_day: 'all-day setting', notify_users_str: 'watchers' };
+  const CHECK = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+  const OVERDUE_SHOWN = 5;
+
+  const S = {
+    mcp: null, sample: null, me: { id: '', name: 'you', first: '' }, tz: 'UTC',
+    users: {}, projects: {}, tasks: [], notifs: [], tasksErr: '', notifsErr: '',
+    done: {}, showAllOverdue: false, view: { overdue: [], next7: [], inprog: [] },
+    replies: {}, openReply: {}, posted: {}, ask: null, askBusy: false, modal: null, modalSeq: 0, updated: 0,
+  };
+
+  // ---------- text helpers ----------
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+  function htmlToText(html) {
+    if (!html) return '';
+    const marked = String(html).replace(/<br\s*\/?>/gi, '\n').replace(/<li[^>]*>/gi, '• ').replace(/<\/(p|div|li|h[1-6]|tr|blockquote|pre)>/gi, '\n');
+    const doc = new DOMParser().parseFromString(marked, 'text/html');
+    return (doc.body.textContent || '').replace(ZW, '').replace(/\u00A0/g, ' ').replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+  }
+  function oneLine(html, n) { const t = htmlToText(html).replace(/\s+/g, ' ').trim(); const max = n || 160; return t.length > max ? t.slice(0, max - 1).trimEnd() + '…' : t; }
+  function firstLine(s) { return String(s || '').split('\n')[0].trim(); }
+  function splitTag(title) {
+    const t = firstLine(title);
+    const m = t.match(/^\[([^\]]{1,40})\]\s*/);
+    return m ? { tag: m[1], text: t.slice(m[0].length) || m[1] } : { tag: '', text: t || 'Untitled' };
+  }
+  function noDashes(s) { return String(s || '').replace(/\s*[—–]\s*/g, ', ').trim(); }
+  function initials(name) { return String(name || '?').split(/\s+/).map((w) => w[0] || '').join('').slice(0, 2).toUpperCase(); }
+  function sid(s) { return String(s).replace(/[^\w-]/g, '_'); }
+  function taskUrl(pid, id) { return 'https://freedcamp.com/view/' + encodeURIComponent(pid) + '/tasks/' + encodeURIComponent(id); }
+  function safeUrl(u, fallback) { return /^https:\/\/([a-z0-9-]+\.)*freedcamp\.com\//i.test(String(u || '')) ? u : fallback; }
+  function userName(id) { const u = S.users[String(id)]; return (u && (u.full_name || u.first_name)) || 'Someone'; }
+
+  // ---------- dates (user timezone) ----------
+  function validTz(tz) { try { if (!tz) return ''; new Intl.DateTimeFormat('en-CA', { timeZone: tz }); return tz; } catch (e) { return ''; } }
+  function ymd(sec) { return new Intl.DateTimeFormat('en-CA', { timeZone: S.tz, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(sec * 1000)); }
+  function today() { return ymd(Date.now() / 1000); }
+  function addDays(d, n) { return new Date(Date.parse(d + 'T00:00:00Z') + n * 864e5).toISOString().slice(0, 10); }
+  function diffDays(a, b) { return Math.round((Date.parse(b + 'T00:00:00Z') - Date.parse(a + 'T00:00:00Z')) / 864e5); }
+  function fmtDay(d, opts) { return new Date(d + 'T00:00:00Z').toLocaleDateString('en-US', Object.assign({ month: 'short', day: 'numeric', timeZone: 'UTC' }, opts || {})); }
+  function overdueDays(t) { return t.due_ts ? diffDays(ymd(t.due_ts), today()) : 0; }
+  function dueInfo(t) {
+    if (!t.due_ts) return { text: 'No due date', cls: '' };
+    const n = overdueDays(t);
+    if (n > 0) return { text: n === 1 ? '1 day overdue' : n + ' days overdue', cls: 'red' };
+    if (n === 0) return { text: 'Due today', cls: 'amber' };
+    if (n === -1) return { text: 'Due tomorrow', cls: 'blue' };
+    return { text: 'Due ' + fmtDay(ymd(t.due_ts)), cls: '' };
+  }
+  function relTime(sec) {
+    const s = Math.max(0, Date.now() / 1000 - sec);
+    if (s < 3600) return Math.max(1, Math.round(s / 60)) + 'm ago';
+    if (s < 86400) return Math.round(s / 3600) + 'h ago';
+    if (s < 7 * 86400) return Math.round(s / 86400) + 'd ago';
+    return fmtDay(ymd(sec));
+  }
+  function clock(ms) { return new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: S.tz }).format(new Date(ms)); }
+
+  // ---------- capabilities ----------
+  async function useCap(name) {
+    try { if (typeof claude === 'undefined' || !claude || typeof claude.use !== 'function') return null; return (await claude.use(name)) || null; }
+    catch (e) { return null; }
+  }
+  async function getSample() { if (!S.sample) S.sample = await useCap('sample'); return S.sample; }
+  async function call(tool, input) {
+    const r = await S.mcp.callTool('Freedcamp', tool, input, { cache: false });
+    let p = r && r.payload;
+    if (typeof p === 'string') { try { p = JSON.parse(p); } catch (e) { /* keep string */ } }
+    return p;
+  }
+  function errText(e) {
+    switch (e && e.code) {
+      case 'server_not_connected': case 'server_not_found': return 'Freedcamp is not connected. Add it in Claude Settings, Connectors.';
+      case 'needs_reauth': return 'Freedcamp needs to be reconnected. Reconnect it in Claude Settings, Connectors.';
+      case 'approval_required': case 'not_in_manifest': case 'consent_required': return 'This page needs permission. Allow it in the page permissions.';
+      case 'server_unavailable': case 'upstream_error': return 'Freedcamp did not respond. Try again shortly.';
+      case 'not_granted': return 'Claude drafting was not allowed. Allow it in the page permissions.';
+      case 'rate_limited': return 'Claude is busy right now. Wait a moment, then try again.';
+      case 'invalid_json': return 'Claude sent an answer the page could not read. Ask again.';
+      default: return 'Something went wrong' + (e && e.message ? ': ' + e.message : '.');
+    }
+  }
+  let toastTimer = 0;
+  function toast(msg) { const el = $('#toast'); el.textContent = msg; clearTimeout(toastTimer); toastTimer = setTimeout(() => { el.textContent = ''; }, 5000); }
+  function banner(msg) { const b = $('#banner'); b.textContent = msg || ''; b.hidden = !msg; }
+
+  // ---------- loading ----------
+  async function loadAll() {
+    const btn = $('#refresh'); btn.disabled = true; banner('');
+    try {
+      const sess = await call('fc_fetch_current_session', {});
+      const d = (sess && sess.data) || sess || {};
+      const uid = String(d.user_id || '');
+      S.users = {}; (d.users || []).forEach((u) => { S.users[String(u.user_id)] = u; });
+      S.projects = {}; (d.projects || []).forEach((p) => { S.projects[String(p.project_id || p.id)] = p.project_name || ''; });
+      const u = S.users[uid] || {};
+      S.me = { id: uid, name: u.full_name || u.first_name || 'you', first: u.first_name || '' };
+      S.tz = validTz(u.timezone) || validTz(Intl.DateTimeFormat().resolvedOptions().timeZone) || 'UTC';
+    } catch (e) { banner(errText(e)); btn.disabled = false; $('#sub').textContent = 'Could not load Freedcamp.'; return; }
+    const [t, n] = await Promise.allSettled([fetchTasks(), call('fc_fetch_notifications', {})]);
+    if (t.status === 'fulfilled') { S.tasks = t.value; S.tasksErr = ''; } else { S.tasksErr = errText(t.reason); }
+    if (n.status === 'fulfilled') { const nd = (n.value && n.value.data) || {}; S.notifs = classifyAll(nd.notifications || []); S.notifsErr = ''; } else { S.notifsErr = errText(n.reason); }
+    S.done = {}; S.updated = Date.now();
+    renderHeader(); renderTasks(); renderNotifs();
+    btn.disabled = false;
+  }
+  async function fetchTasks() {
+    const p = await call('fc_fetch_tasks', { filters: { assigned_to_id: [S.me.id], order_due_date: 'asc' }, limit: 100 });
+    S.hasMore = Boolean(p && p.meta && p.meta.has_more);
+    return ((p && p.tasks) || []).filter((x) => +x.status !== 1 && +x.status !== 3);
+  }
+  async function refreshTasks() {
+    try { S.tasks = await fetchTasks(); S.tasksErr = ''; S.updated = Date.now(); renderHeader(); renderTasks(); }
+    catch (e) { toast(errText(e)); }
+  }
+
+  // ---------- notifications ----------
+  function commentHtml(a) { const p = (a.changed_properties || []).find((x) => x.property_name === 'title' || x.property_name === 'description'); return p ? String(p.new_value || '') : ''; }
+  function hasQuestion(html) { const t = htmlToText(html).replace(/(https?:\/\/|www\.)\S+/gi, ''); return /\?(?=[\s"')\]]|$)/.test(t); }
+  function mentionsMe(html) {
+    if (!html || html.indexOf('fc_mention') < 0) return false;
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    return Array.from(doc.querySelectorAll('.fc_mention')).some((el) => el.getAttribute('data-id') === S.me.id);
+  }
+  function classify(n) {
+    const me = S.me.id;
+    const acts = (n.actions || []).filter((a) => !(+a.action_type === 2 && !(a.changed_properties || []).length)).sort((a, b) => b.action_ts - a.action_ts);
+    if (!acts.length) return null;
+    const app = +n.app_id;
+    const noun = APP_NOUN[app] || 'an item';
+    const other = (a) => String(a.user_id) !== me;
+    const comments = acts.filter((a) => +a.action_type === 9);
+    const nc = comments[0];
+    const base = { uid: String(n.uid || app + '_' + n.item_id), app, itemId: String(n.item_id), projectId: String(n.project_id || ''), title: n.item_title || '', canComment: n.f_can_add_comment !== false };
+    const withQuote = (o, a) => { const c = a && commentHtml(a); return Object.assign(base, o, c ? { quote: oneLine(c), full: htmlToText(c) } : {}); };
+    if (nc && other(nc) && hasQuestion(commentHtml(nc))) return withQuote({ group: 'needs', kind: 'Needs you', cls: 'pink', verb: 'asked a question on ' + noun, act: nc, reply: true }, nc);
+    const men = comments.find((a) => other(a) && mentionsMe(commentHtml(a)));
+    if (men) return withQuote({ group: 'mention', kind: 'Mention', cls: 'blue', verb: 'mentioned you on ' + noun, act: men, reply: true }, men);
+    if (app === 19) return Object.assign(base, { group: 'event', kind: 'Event', cls: '', verb: acts.some((a) => +a.action_type === 1) ? 'added a calendar event' : 'updated a calendar event', act: acts[0] });
+    const comp = acts.find((a) => +a.action_type === 21 && (a.changed_properties || []).some((p) => p.property_name === 'status' && (p.new_value_human === 'Completed' || String(p.new_value) === '1')));
+    if (comp) return withQuote({ group: 'complete', kind: 'Completed', cls: 'green', verb: 'completed ' + noun, act: comp }, nc);
+    const top = acts[0];
+    if (+top.action_type === 4) {
+      const p = (top.changed_properties || []).find((x) => x.property_name === 'assigned_to_id') || {};
+      const verb = String(p.old_value) === me ? 'took over a task from you' : String(p.new_value) === me ? 'assigned a task to you' : 'reassigned a task' + (p.new_value_human ? ' to ' + p.new_value_human : '');
+      return withQuote({ group: 'reassign', kind: 'Reassigned', cls: 'amber', verb, act: top }, nc);
+    }
+    if (+top.action_type === 9) return withQuote({ group: 'comment', kind: 'Comment', cls: '', verb: 'commented on ' + noun, act: top, reply: true }, top);
+    const prop = ((top.changed_properties || [])[0] || {}).property_name;
+    const verb = prop ? 'updated the ' + (PROP_LABEL[prop] || prop.replace(/_/g, ' ')) + ' of ' + noun : (+top.action_type === 1 ? 'added ' : 'updated ') + noun;
+    return withQuote({ group: 'edit', kind: 'Edit', cls: '', verb, act: top }, nc);
+  }
+  function classifyAll(list) {
+    return list.map(classify).filter(Boolean).sort((a, b) => (a.group === 'needs' ? 0 : 1) - (b.group === 'needs' ? 0 : 1) || b.act.action_ts - a.act.action_ts);
+  }
+
+  // ---------- rendering ----------
+  function renderHeader() {
+    const d = fmtDay(today(), { weekday: 'long', month: 'long' });
+    $('#sub').textContent = (S.me.first ? S.me.first + ', ' : '') + d + (S.updated ? ' · Updated ' + clock(S.updated) : '');
+  }
+  function buckets() {
+    const td = today(), end = addDays(td, 7), o = [], nx = [], p = [];
+    S.tasks.forEach((t) => {
+      if (t.due_ts) { const d = ymd(t.due_ts); if (d < td) o.push(t); else if (d <= end) nx.push(t); }
+      else if (+t.status === 2) p.push(t);
+    });
+    o.sort((a, b) => b.due_ts - a.due_ts); nx.sort((a, b) => a.due_ts - b.due_ts);
+    return { overdue: o, next7: nx, inprog: p, end };
+  }
+  function openCount(list) { return list.filter((t) => !(String(t.id) in S.done)).length; }
+  function rowHtml(t, bucket, i) {
+    const id = String(t.id), done = id in S.done, tt = splitTag(t.title), due = dueInfo(t), proj = S.projects[String(t.project_id)];
+    return '<li class="row' + (done ? ' done' : '') + '">' +
+      '<button class="check" type="button" data-check="' + esc(id) + '" aria-pressed="' + done + '" aria-label="' + (done ? 'Undo complete: ' : 'Complete: ') + esc(tt.text) + '">' + CHECK + '</button>' +
+      '<div class="rbody"><div class="rtitle">' + (tt.tag ? '<span class="tag">' + esc(tt.tag) + '</span>' : '') +
+      '<button class="tlink" type="button" data-open="' + bucket + ':' + i + '">' + esc(tt.text) + '</button>' +
+      '<a class="ext" href="' + esc(safeUrl(t.url, taskUrl(t.project_id, id))) + '" target="_blank" rel="noopener">Freedcamp</a></div>' +
+      '<div class="meta">' + (proj ? '<span>' + esc(proj) + '</span>' : '') + '<span class="pill ' + due.cls + '">' + esc(due.text) + '</span>' +
+      (PRIO[+t.priority] ? '<span class="pill p' + (+t.priority) + '">' + PRIO[+t.priority] + '</span>' : '') +
+      (+t.status === 2 ? '<span class="pill blue">In progress</span>' : '') + '</div></div></li>';
+  }
+  function renderTasks() {
+    const b = buckets();
+    S.view = { overdue: b.overdue, next7: b.next7, inprog: b.inprog };
+    $('#t-overdue').textContent = S.tasksErr ? '-' : openCount(b.overdue);
+    $('#t-next7').textContent = S.tasksErr ? '-' : openCount(b.next7);
+    $('#t-inprog').textContent = S.tasksErr ? '-' : openCount(b.inprog);
+    const fill = (key, list, empty, limit) => {
+      $('#c-' + key).textContent = S.tasksErr ? '' : list.length;
+      if (S.tasksErr) { $('#l-' + key).innerHTML = '<div class="err">' + esc(S.tasksErr) + '</div>'; return; }
+      if (!list.length) { $('#l-' + key).innerHTML = '<div class="empty">' + esc(empty) + '</div>'; return; }
+      const shown = limit ? list.slice(0, limit) : list;
+      let html = '<ul class="list">' + shown.map((t, i) => rowHtml(t, key, i)).join('') + '</ul>';
+      if (key === 'overdue' && list.length > OVERDUE_SHOWN) html += '<button class="more" type="button" data-more>' + (S.showAllOverdue ? 'Show fewer overdue' : 'Show ' + (list.length - OVERDUE_SHOWN) + ' more overdue') + '</button>';
+      $('#l-' + key).innerHTML = html;
+    };
+    fill('overdue', b.overdue, 'Nothing overdue. Nice.', S.showAllOverdue ? 0 : OVERDUE_SHOWN);
+    fill('next7', b.next7, 'Nothing else is due through ' + fmtDay(b.end) + '.');
+    fill('inprog', b.inprog, 'Nothing in progress without a due date.');
+    $('#foot').textContent = (S.hasMore ? 'Showing your first 100 assigned tasks. ' : '') + 'Completing a task, posting a comment and applying a date change your real Freedcamp account.';
+  }
+  function notifHtml(n) {
+    const actor = userName(n.act.user_id), tt = splitTag(n.title), proj = S.projects[n.projectId];
+    const href = n.app === 2 ? taskUrl(n.projectId, n.itemId) : 'https://freedcamp.com';
+    const id = sid(n.uid), canReply = n.reply && n.canComment && !S.posted[n.uid];
+    let html = '<li class="notif"><div class="avatar" aria-hidden="true">' + esc(initials(actor)) + '</div><div class="nbody">' +
+      '<div class="nline"><b>' + esc(actor) + '</b> ' + esc(n.verb) + ' <span class="pill ' + n.cls + '">' + esc(n.kind) + '</span></div>' +
+      '<div class="rtitle">' + (tt.tag ? '<span class="tag">' + esc(tt.tag) + '</span>' : '') + '<a class="ext" style="font-size:14px" href="' + esc(href) + '" target="_blank" rel="noopener">' + esc(tt.text) + '</a></div>' +
+      '<div class="meta">' + (proj ? '<span>' + esc(proj) + '</span>' : '') + '<span>' + esc(relTime(n.act.action_ts)) + '</span></div>' +
+      (n.quote && n.group !== 'event' ? '<div class="quote">' + esc(n.quote) + '</div>' : '');
+    const acts = [];
+    if (n.app === 2) acts.push('<button class="btn" type="button" data-open-id="' + esc(n.itemId) + '">Open task</button>');
+    if (canReply && !S.openReply[n.uid]) acts.push('<button class="btn" type="button" data-reply="' + esc(n.uid) + '">Reply</button><button class="btn" type="button" data-draft="' + esc(n.uid) + '">Draft reply with Claude</button>');
+    if (S.posted[n.uid]) acts.push('<span class="applied">Reply posted</span>');
+    if (acts.length) html += '<div class="acts">' + acts.join('') + '</div>';
+    if (canReply && S.openReply[n.uid]) {
+      html += '<div class="composer"><textarea id="r-' + id + '" data-reply-text="' + esc(n.uid) + '" aria-label="Reply">' + esc(S.replies[n.uid] || '') + '</textarea>' +
+        '<div class="acts"><button class="btn primary" type="button" data-post="' + esc(n.uid) + '">Post reply</button><button class="btn" type="button" data-draft="' + esc(n.uid) + '">Draft reply with Claude</button><button class="btn ghost" type="button" data-cancel="' + esc(n.uid) + '">Cancel</button></div>' +
+        '<div class="status" id="rs-' + id + '" aria-live="polite"></div></div>';
+    }
+    return html + '</div></li>';
+  }
+  function renderNotifs() {
+    const needs = S.notifs.filter((n) => n.group === 'needs'), rest = S.notifs.filter((n) => n.group !== 'needs');
+    $('#t-waiting').textContent = S.notifsErr ? '-' : needs.length;
+    const fill = (key, list, empty) => {
+      $('#c-' + key).textContent = S.notifsErr ? '' : list.length;
+      $('#l-' + key).innerHTML = S.notifsErr ? '<div class="err">' + esc(S.notifsErr) + '</div>' : list.length ? '<ul class="list">' + list.map(notifHtml).join('') + '</ul>' : '<div class="empty">' + esc(empty) + '</div>';
+    };
+    fill('waiting', needs, 'Nobody is waiting on an answer from you.');
+    fill('updates', rest, 'No recent updates.');
+  }
+
+  // ---------- complete ----------
+  async function toggleDone(id) {
+    const t = S.tasks.find((x) => String(x.id) === id); if (!t) return;
+    if (!(id in S.done)) {
+      S.done[id] = +t.status; renderTasks();
+      try { await call('fc_update_status', { item_id: id, status: 1 }); }
+      catch (e) { delete S.done[id]; renderTasks(); toast(errText(e)); }
+    } else {
+      const orig = S.done[id]; delete S.done[id]; renderTasks();
+      try { await call('fc_update_status', { item_id: id, status: orig }); }
+      catch (e) { S.done[id] = orig; renderTasks(); toast(errText(e)); }
+    }
+  }
+
+  // ---------- Claude drafting ----------
+  async function streamDraft(prompt, ta, statusEl, btns) {
+    const s = await getSample();
+    if (!s) { statusEl.className = 'status bad'; statusEl.textContent = 'Claude drafting is not available. Allow it in the page permissions.'; return; }
+    const old = ta.value; let acc = '';
+    btns.forEach((b) => { b.disabled = true; });
+    statusEl.className = 'status'; statusEl.textContent = 'Claude is drafting...'; ta.value = '';
+    try {
+      const res = await s(prompt, { modelTier: 'quick', cache: false, onText: (chunk) => {
+        const c = typeof chunk === 'string' ? chunk : (chunk && chunk.text) || '';
+        acc = acc && c.startsWith(acc) ? c : acc + c;
+        ta.value = acc;
+      } });
+      const final = typeof res === 'string' ? res : (res && (res.text || res.content)) || acc;
+      ta.value = noDashes(final);
+      statusEl.textContent = ta.value ? 'Edit the draft, then post it.' : 'Claude returned nothing. Try again.';
+    } catch (e) {
+      if (!acc) ta.value = old;
+      statusEl.className = 'status bad'; statusEl.textContent = errText(e);
+    } finally {
+      btns.forEach((b) => { b.disabled = false; });
+      ta.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+  }
+  const STYLE = 'Write in first person as {me}, 2 to 4 sentences, plain text, no greeting or sign-off, no em dashes. Do not invent facts, dates, numbers or promises that are not in the context; if something is unknown, say you will check. Reply with the message text only.';
+  function style() { return STYLE.replace('{me}', S.me.name); }
+  function notifPrompt(n) {
+    return 'Draft a reply to a Freedcamp comment for ' + S.me.name + '.\n' + style() + '\n\nItem: ' + firstLine(n.title) + '\nProject: ' + (S.projects[n.projectId] || 'unknown') +
+      '\n' + userName(n.act.user_id) + ' wrote:\n"""' + String(n.full || n.quote || '').slice(0, 1500) + '"""';
+  }
+  function openReply(uid, draft) {
+    S.openReply[uid] = true; renderNotifs();
+    const n = S.notifs.find((x) => x.uid === uid), ta = $('#r-' + sid(uid));
+    if (!n || !ta) return;
+    ta.focus({ preventScroll: true });
+    if (draft) streamDraft(notifPrompt(n), ta, $('#rs-' + sid(uid)), Array.from(ta.parentNode.querySelectorAll('button')));
+  }
+  async function postReply(uid, btn) {
+    const n = S.notifs.find((x) => x.uid === uid), ta = $('#r-' + sid(uid)), st = $('#rs-' + sid(uid));
+    if (!n || !ta) return;
+    const text = ta.value.trim();
+    if (!text) { st.className = 'status bad'; st.textContent = 'Write a reply first.'; return; }
+    btn.disabled = true; st.className = 'status'; st.textContent = 'Posting...';
+    try {
+      await call('fc_add_comment', { item_id: n.itemId, app_id: n.app, description: text });
+      S.replies[uid] = ''; S.openReply[uid] = false; S.posted[uid] = true; renderNotifs(); toast('Reply posted.');
+    } catch (e) {
+      btn.disabled = false; st.className = 'status bad';
+      st.textContent = errText(e) + ' It may have gone through, so check the task before posting again.';
+    }
+  }
+
+  // ---------- task modal ----------
+  function focusables() { return Array.from($('#dialog').querySelectorAll('button:not([disabled]),a[href],textarea,input')).filter((el) => el.offsetParent !== null); }
+  async function openTask(id, opener) {
+    const seq = ++S.modalSeq;
+    S.modal = { id: String(id), opener, openerSel: opener && opener.getAttribute('data-open') ? '[data-open="' + opener.getAttribute('data-open') + '"]' : null, task: null, local: [], draft: '' };
+    $('#m-body').innerHTML = '<h2 id="m-title">Loading task...</h2><div class="skel w60"></div><div class="skel w80"></div><div class="skel w40"></div>';
+    $('#modal').hidden = false; document.body.style.overflow = 'hidden';
+    $('#dialog').focus({ preventScroll: true });
+    try {
+      const p = await call('fc_fetch_task', { task_id: String(id) });
+      if (seq !== S.modalSeq || !S.modal) return;
+      S.modal.task = (p && (p.task || (p.data && p.data.task) || (p.id || p.title ? p : null))) || null;
+      if (!S.modal.task) throw new Error('The task came back empty.');
+      renderModal();
+    } catch (e) {
+      if (seq !== S.modalSeq || !S.modal) return;
+      $('#m-body').innerHTML = '<h2 id="m-title">Could not open this task</h2><p class="status bad">' + esc(errText(e)) + '</p>';
+    }
+  }
+  function renderModal() {
+    const m = S.modal, t = m.task, tt = splitTag(t.title), due = dueInfo(t), proj = S.projects[String(t.project_id)];
+    const isDone = +t.status === 1;
+    const desc = htmlToText(t.description_processed || t.description || '');
+    const kids = Array.isArray(t.children) ? t.children : [];
+    const comments = (Array.isArray(t.comments) ? t.comments.slice() : []).sort((a, b) => (a.created_ts || 0) - (b.created_ts || 0))
+      .map((c) => ({ who: c.user_full_name || userName(c.user_id), ts: c.created_ts, text: htmlToText(c.description_processed || c.description || '') })).concat(m.local);
+    let h = '<div class="rtitle">' + (tt.tag ? '<span class="tag">' + esc(tt.tag) + '</span>' : '') + '</div><h2 id="m-title">' + esc(tt.text) + '</h2>' +
+      '<div class="meta">' + (proj ? '<span>' + esc(proj) + '</span>' : '') + (t.list_title ? '<span>' + esc(t.list_title) + '</span>' : '') +
+      '<a class="ext" href="' + esc(safeUrl(t.url, taskUrl(t.project_id, t.id))) + '" target="_blank" rel="noopener">Open in Freedcamp</a></div>' +
+      '<div class="meta"><span class="pill ' + (isDone ? 'green' : +t.status === 2 ? 'blue' : '') + '" id="m-status">' + esc(t.status_title || (isDone ? 'Completed' : 'Open')) + '</span>' +
+      '<span class="pill ' + (isDone ? '' : due.cls) + '">' + esc(due.text) + '</span>' +
+      (t.assigned_to_fullname ? '<span>Assigned to ' + esc(t.assigned_to_fullname) + '</span>' : '') +
+      (PRIO[+t.priority] ? '<span class="pill p' + (+t.priority) + '">' + esc(PRIO[+t.priority]) + ' priority</span>' : '') + '</div>';
+    h += '<div class="msec"><h3>Description</h3><div class="desc">' + (desc ? esc(desc) : '<span class="hint">No description.</span>') + '</div></div>';
+    if (kids.length) h += '<div class="msec"><h3>Subtasks</h3><ul class="subs">' + kids.map((k) => '<li>' + (+k.status === 1 ? '<span class="ok">✓</span> ' : '○ ') + esc(firstLine(k.title)) + '</li>').join('') + '</ul></div>';
+    h += '<div class="msec"><h3>Comments (' + comments.length + ')</h3>' + (comments.length ? comments.map((c) => '<div class="comment"><div class="chead"><b>' + esc(c.who) + '</b> · ' + (c.ts ? esc(relTime(c.ts)) : 'just now') + '</div><div class="ctext">' + esc(c.text) + '</div></div>').join('') : '<span class="hint">No comments yet.</span>') + '</div>';
+    if (t.can_comment !== false) {
+      h += '<div class="msec"><h3>Add a comment</h3><div class="composer"><input type="text" id="m-instr" placeholder="Optional instruction for Claude, e.g. say it ships Friday" aria-label="Instruction for Claude">' +
+        '<textarea id="m-text" aria-label="Comment">' + esc(m.draft) + '</textarea><div class="acts"><button class="btn primary" type="button" id="m-post">Post comment</button><button class="btn" type="button" id="m-draft">Draft reply with Claude</button>' +
+        (t.can_progress !== false && !isDone ? '<button class="btn" type="button" id="m-complete">Mark complete</button>' : '') + '</div><div class="status" id="m-st" aria-live="polite"></div></div></div>';
+    } else if (t.can_progress !== false && !isDone) {
+      h += '<div class="msec"><div class="acts"><button class="btn" type="button" id="m-complete">Mark complete</button></div><div class="status" id="m-st" aria-live="polite"></div></div>';
+    }
+    $('#m-body').innerHTML = h;
+  }
+  function closeModal() {
+    if (!S.modal) return;
+    const m = S.modal; S.modal = null; S.modalSeq++;
+    $('#modal').hidden = true; document.body.style.overflow = '';
+    const back = m.opener && m.opener.isConnected ? m.opener : m.openerSel ? document.querySelector(m.openerSel) : null;
+    if (back) back.focus({ preventScroll: true });
+  }
+  function modalPrompt() {
+    const t = S.modal.task, instr = ($('#m-instr') && $('#m-instr').value.trim()) || '';
+    const all = (Array.isArray(t.comments) ? t.comments.slice() : []).sort((a, b) => (a.created_ts || 0) - (b.created_ts || 0))
+      .map((c) => (c.user_full_name || userName(c.user_id)) + ': ' + htmlToText(c.description_processed || c.description || '').slice(0, 600)).concat(S.modal.local.map((c) => c.who + ': ' + c.text));
+    return 'Draft a comment on a Freedcamp task for ' + S.me.name + '.\n' + style() +
+      '\n\nTask: ' + firstLine(t.title) + '\nStatus: ' + (t.status_title || 'unknown') +
+      '\nDescription (start): """' + htmlToText(t.description_processed || t.description || '').slice(0, 700) + '"""' +
+      '\nLast comments, oldest first:\n' + (all.slice(-5).join('\n') || '(none)') + (instr ? '\n\nInstruction from ' + S.me.name + ': ' + instr : '');
+  }
+  async function modalPost(btn) {
+    const ta = $('#m-text'), st = $('#m-st'), t = S.modal && S.modal.task; if (!ta || !t) return;
+    const text = ta.value.trim();
+    if (!text) { st.className = 'status bad'; st.textContent = 'Write a comment first.'; return; }
+    btn.disabled = true; st.className = 'status'; st.textContent = 'Posting...';
+    try {
+      await call('fc_add_comment', { item_id: String(t.id || S.modal.id), app_id: 2, description: text });
+      S.modal.local.push({ who: S.me.name, ts: Math.floor(Date.now() / 1000), text }); S.modal.draft = '';
+      renderModal(); const s2 = $('#m-st'); if (s2) s2.textContent = 'Comment posted.';
+    } catch (e) { btn.disabled = false; st.className = 'status bad'; st.textContent = errText(e) + ' It may have gone through, so check the task before posting again.'; }
+  }
+  async function modalComplete(btn) {
+    const t = S.modal && S.modal.task, st = $('#m-st'); if (!t) return;
+    const id = String(t.id || S.modal.id);
+    btn.disabled = true; if (st) { st.className = 'status'; st.textContent = 'Completing...'; }
+    try {
+      await call('fc_update_status', { item_id: id, status: 1 });
+      const row = S.tasks.find((x) => String(x.id) === id);
+      if (row && !(id in S.done)) S.done[id] = +row.status;
+      renderTasks();
+      t.status = 1; t.status_title = 'Completed';
+      if (S.modal) { const draft = $('#m-text') ? $('#m-text').value : ''; S.modal.draft = draft; renderModal(); const s2 = $('#m-st'); if (s2) s2.textContent = 'Task completed.'; }
+    } catch (e) { btn.disabled = false; if (st) { st.className = 'status bad'; st.textContent = errText(e); } }
+  }
+
+  // ---------- Ask next ----------
+  function openTasks() { return S.tasks.filter((t) => !(String(t.id) in S.done)); }
+  function poolLine(t, ref) {
+    const tt = splitTag(t.title), proj = S.projects[String(t.project_id)] || 'No project', n = overdueDays(t);
+    const due = t.due_ts ? 'due ' + fmtDay(ymd(t.due_ts)) + (n > 0 ? ' (' + n + ' days overdue)' : n === 0 ? ' (today)' : '') : 'no due date';
+    return '[' + ref + '] ' + (tt.tag ? '[' + tt.tag + '] ' : '') + tt.text.replace(/\|/g, '/') + ' | ' + proj + ' | ' + due + ' | priority ' + (+t.priority || 0) + (+t.status === 2 ? ' | in progress' : '');
+  }
+  function setAskBusy(on, msg) {
+    S.askBusy = on;
+    document.querySelectorAll('[data-ask]').forEach((b) => { b.disabled = on; });
+    const st = $('#ask-status'); st.className = 'status'; st.textContent = msg || '';
+  }
+  async function runAsk(mode) {
+    if (S.askBusy) return;
+    const s = await getSample();
+    if (!s) { const st = $('#ask-status'); st.className = 'status bad'; st.textContent = 'Claude drafting is not available. Allow it in the page permissions.'; return; }
+    const td = today();
+    let pool;
+    if (mode === 'plan') {
+      const b = buckets(), seen = new Set();
+      pool = [].concat(b.overdue, b.next7, b.inprog, S.tasks).filter((t) => !(String(t.id) in S.done) && !seen.has(String(t.id)) && seen.add(String(t.id))).slice(0, 60);
+    } else {
+      pool = openTasks().filter((t) => overdueDays(t) > 0).sort((a, b) => (+b.priority || 0) - (+a.priority || 0) || overdueDays(b) - overdueDays(a)).slice(0, 12);
+    }
+    if (!pool.length) { S.ask = null; $('#ask-out').innerHTML = '<p class="hint">' + (mode === 'plan' ? 'You have no open tasks to plan.' : 'You have no overdue tasks.') + '</p>'; return; }
+    const lines = pool.map((t, i) => poolLine(t, i + 1)).join('\n');
+    const dayName = fmtDay(td, { weekday: 'long', month: 'long' });
+    const prompt = mode === 'plan'
+      ? 'Today is ' + dayName + ' (' + td + '). These are the open Freedcamp tasks assigned to ' + S.me.name + ', each with a ref number:\n' + lines +
+        '\n\nPick at most 5 tasks to focus on today, most important first. Weigh how overdue each task is, its priority (3 is high), and work already in progress. Reply with JSON only, no prose, in exactly this shape:\n{"summary":"one sentence","items":[{"ref":1,"why":"one sentence reason"}]}\nUse only ref numbers from the list. No em dashes.'
+      : 'Today is ' + dayName + ' (' + td + '). These overdue Freedcamp tasks belong to ' + S.me.name + ', each with a ref number:\n' + lines +
+        '\n\nSuggest a new due date for each task. Spread them from ' + addDays(td, 1) + ' to ' + addDays(td, 14) + ', at most 3 tasks per day, prefer weekdays, and give higher priority and more overdue tasks earlier dates. Reply with JSON only, no prose, in exactly this shape:\n{"summary":"one sentence","items":[{"ref":1,"date":"YYYY-MM-DD","why":"one sentence reason"}]}\nUse only ref numbers from the list. No em dashes.';
+    setAskBusy(true, 'Claude is thinking...');
+    try {
+      const res = await s.json(prompt, { modelTier: 'default', cache: false });
+      const data = res && typeof res === 'object' && 'items' in res ? res : res && res.data;
+      if (!data || !Array.isArray(data.items)) throw { code: 'invalid_json' };
+      const used = new Set(); let skipped = 0;
+      const items = data.items.map((it) => {
+        const ref = Number(it && it.ref), t = pool[ref - 1];
+        if (!Number.isInteger(ref) || !t || used.has(ref)) { skipped++; return null; }
+        if (mode === 'dates') {
+          const d = String(it.date || '');
+          if (!/^\d{4}-\d{2}-\d{2}$/.test(d) || isNaN(Date.parse(d + 'T00:00:00Z')) || d < td) { skipped++; return null; }
+          used.add(ref); return { task: t, date: d, why: noDashes(it.why), state: 'idle', err: '' };
+        }
+        used.add(ref); return { task: t, why: noDashes(it.why) };
+      }).filter(Boolean).slice(0, mode === 'plan' ? 5 : 12);
+      S.ask = { mode, summary: noDashes(data.summary), items, skipped };
+      setAskBusy(false, '');
+      renderAsk();
+    } catch (e) { setAskBusy(false, ''); const st = $('#ask-status'); st.className = 'status bad'; st.textContent = errText(e); }
+  }
+  function renderAsk() {
+    const a = S.ask, out = $('#ask-out');
+    if (!a) { out.innerHTML = ''; return; }
+    if (!a.items.length) { out.innerHTML = '<p class="hint">Claude did not return any usable suggestions. Ask again.</p>'; return; }
+    const td = today();
+    let h = a.summary ? '<p class="summary">' + esc(a.summary) + '</p>' : '';
+    h += a.items.map((it, i) => {
+      const t = it.task, tt = splitTag(t.title), proj = S.projects[String(t.project_id)], due = dueInfo(t);
+      let c = '<div class="acard"><div class="num">' + (i + 1) + '</div><div class="rbody"><div class="rtitle">' + (tt.tag ? '<span class="tag">' + esc(tt.tag) + '</span>' : '') +
+        '<button class="tlink" type="button" data-open-id="' + esc(t.id) + '">' + esc(tt.text) + '</button></div>' +
+        '<div class="meta">' + (proj ? '<span>' + esc(proj) + '</span>' : '') + '<span class="pill ' + due.cls + '">' + (a.mode === 'dates' && t.due_ts ? 'Was due ' + esc(fmtDay(ymd(t.due_ts))) : esc(due.text)) + '</span></div>' +
+        (it.why ? '<div class="why">' + esc(it.why) + '</div>' : '');
+      if (a.mode === 'dates') {
+        c += '<div class="dateline"><input type="date" data-date="' + i + '" min="' + td + '" value="' + esc(it.date) + '" aria-label="New due date for ' + esc(tt.text) + '"' + (it.state === 'applied' || it.state === 'applying' ? ' disabled' : '') + '>';
+        c += it.state === 'applied' ? '<span class="applied">Applied</span>' : '<button class="btn" type="button" data-apply="' + i + '"' + (it.state === 'applying' ? ' disabled' : '') + '>' + (it.state === 'applying' ? 'Applying...' : 'Apply') + '</button>';
+        c += '</div>' + (it.err ? '<div class="status bad">' + esc(it.err) + '</div>' : '');
+      }
+      return c + '</div></div>';
+    }).join('');
+    if (a.skipped) h += '<p class="hint">' + a.skipped + ' suggestion' + (a.skipped === 1 ? ' was' : 's were') + ' skipped because the task or date was not valid.</p>';
+    if (a.mode === 'dates') {
+      const left = a.items.filter((it) => it.state !== 'applied').length;
+      if (left) h += '<div class="acts"><button class="btn primary" type="button" data-apply-all' + (a.items.some((it) => it.state === 'applying') ? ' disabled' : '') + '>Apply all ' + left + ' date' + (left === 1 ? '' : 's') + ' in Freedcamp</button></div>';
+      h += '<p class="hint">Nothing changes in Freedcamp until you press Apply.</p>';
+    }
+    out.innerHTML = h;
+  }
+  async function applyOne(i) {
+    const it = S.ask && S.ask.items[i]; if (!it || it.state === 'applied' || it.state === 'applying') return false;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(it.date) || it.date < today()) { it.err = 'Pick a date from today on.'; renderAsk(); return false; }
+    it.state = 'applying'; it.err = ''; renderAsk();
+    try { await call('fc_update_task', { task_id: String(it.task.id), due_date: it.date }); it.state = 'applied'; renderAsk(); return true; }
+    catch (e) { it.state = 'error'; it.err = errText(e); renderAsk(); return false; }
+  }
+  async function applyAll() {
+    if (!S.ask) return; let ok = false;
+    for (let i = 0; i < S.ask.items.length; i++) { if (S.ask.items[i].state !== 'applied') ok = (await applyOne(i)) || ok; }
+    if (ok) refreshTasks();
+  }
+
+  // ---------- events ----------
+  function wire() {
+    document.addEventListener('click', (ev) => {
+      const el = ev.target.closest('button,[data-close]'); if (!el) return;
+      const d = el.dataset;
+      if ('close' in d) return closeModal();
+      if (el.id === 'refresh') return loadAll();
+      if (d.check) return toggleDone(d.check);
+      if (d.open) { const [b, i] = d.open.split(':'); const t = (S.view[b] || [])[+i]; if (t) openTask(String(t.id), el); return; }
+      if (d.openId) return openTask(d.openId, el);
+      if ('more' in d) { S.showAllOverdue = !S.showAllOverdue; return renderTasks(); }
+      if (d.reply) return openReply(d.reply, false);
+      if (d.draft) {
+        if (S.openReply[d.draft]) { const n = S.notifs.find((x) => x.uid === d.draft), ta = $('#r-' + sid(d.draft)); if (n && ta) streamDraft(notifPrompt(n), ta, $('#rs-' + sid(d.draft)), Array.from(ta.parentNode.querySelectorAll('button'))); return; }
+        return openReply(d.draft, true);
+      }
+      if (d.post) return postReply(d.post, el);
+      if (d.cancel) { S.openReply[d.cancel] = false; return renderNotifs(); }
+      if (d.ask) return runAsk(d.ask);
+      if (d.apply !== undefined) { applyOne(+d.apply).then((ok) => { if (ok) refreshTasks(); }); return; }
+      if ('applyAll' in d) return applyAll();
+      if (el.id === 'm-post') return modalPost(el);
+      if (el.id === 'm-complete') return modalComplete(el);
+      if (el.id === 'm-draft') { const ta = $('#m-text'); if (ta) streamDraft(modalPrompt(), ta, $('#m-st'), Array.from(ta.parentNode.querySelectorAll('button'))); }
+    });
+    document.addEventListener('input', (ev) => {
+      const el = ev.target;
+      if (el.dataset && el.dataset.replyText) S.replies[el.dataset.replyText] = el.value;
+      else if (el.dataset && el.dataset.date !== undefined && S.ask) { const it = S.ask.items[+el.dataset.date]; if (it) { it.date = el.value; if (it.state === 'error') it.state = 'idle'; } }
+      else if (el.id === 'm-text' && S.modal) S.modal.draft = el.value;
+    });
+    document.addEventListener('keydown', (ev) => {
+      if (!S.modal) return;
+      if (ev.key === 'Escape') { ev.preventDefault(); closeModal(); return; }
+      if (ev.key !== 'Tab') return;
+      const f = focusables(); if (!f.length) { ev.preventDefault(); return; }
+      const first = f[0], last = f[f.length - 1], dlg = $('#dialog');
+      if (ev.shiftKey && (document.activeElement === first || document.activeElement === dlg)) { ev.preventDefault(); last.focus(); }
+      else if (!ev.shiftKey && document.activeElement === last) { ev.preventDefault(); first.focus(); }
+      else if (!dlg.contains(document.activeElement)) { ev.preventDefault(); first.focus(); }
+    });
+  }
+
+  async function boot() {
+    wire();
+    S.mcp = await useCap('mcp');
+    useCap('sample').then((s) => { if (s) S.sample = s; });
+    if (!S.mcp) {
+      banner('Open this page from claude.ai to load your Freedcamp tasks and updates.');
+      document.querySelectorAll('.needs-mcp').forEach((el) => { el.hidden = true; });
+      $('#sub').textContent = 'Not connected';
+      return;
+    }
+    await loadAll();
+  }
+  boot();
+})();
+</script>
