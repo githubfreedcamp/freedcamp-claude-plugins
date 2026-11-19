@@ -5,6 +5,7 @@
   "description": "Work with Freedcamp projects, tasks, wikis and notifications by plain names, and open a live \"Your focus today\" dashboard that completes tasks, posts replies and reschedules overdue work.",
   "author": { "name": "Freedcamp", "url": "https://freedcamp.com" },
   "homepage": "https://freedcamp.com",
+  "privacyPolicyUrl": "https://freedcamp.com/help_/tutorials/wiki/wiki_public/view/pAbab",
   "repository": "https://github.com/githubfreedcamp/freedcamp-claude-plugins",
   "license": "MIT",
   "keywords": ["freedcamp", "project-management", "tasks", "dashboard"]
