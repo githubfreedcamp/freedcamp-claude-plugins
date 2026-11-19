@@ -8,7 +8,7 @@
   "plugins": [
     {
       "name": "freedcamp",
-      "source": "./freedcamp",
+      "source": "./freedcamp-live-dashboard",
       "description": "Manage Freedcamp projects, tasks and updates by name, plus a live \"Your focus today\" dashboard."
     }
   ]
