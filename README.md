@@ -62,10 +62,7 @@ If the interactive Artifact page is unavailable, the skill can use a static dash
 - `freedcamp-live-dashboard/.claude-plugin/plugin.json` — plugin name, version, description, and marketplace metadata.
 - `freedcamp-live-dashboard/.mcp.json` — Freedcamp MCP server configuration.
 - `freedcamp-live-dashboard/skills/freedcamp-live-dashboard/SKILL.md` — instructions for name-based actions, reports, notifications, and dashboard behavior.
-- `freedcamp-live-dashboard/skills/freedcamp-live-dashboard/focus-today.html` — the live dashboard page published by the skill.
-- `freedcamp-live-dashboard/skills/freedcamp-live-dashboard/Dashboard.html` — static dashboard fallback template.
-- `freedcamp-live-dashboard/skills/freedcamp-live-dashboard/constants.js` and `notification_helpers.js` — app/status mappings and notification helpers.
-- `freedcamp-live-dashboard/skills/freedcamp-live-dashboard/unify_session.js` — optional utility that converts a saved current-session response into a grouped lookup.
+- `freedcamp-live-dashboard/skills/freedcamp-live-dashboard/dashboard-spec.md` — the written spec Claude builds the dashboard page from. No prebuilt page or script ships with the plugin.
 
 ## License and support
 
