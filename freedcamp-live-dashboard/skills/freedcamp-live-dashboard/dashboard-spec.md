@@ -5,7 +5,9 @@ No page ships with this skill. You write the page from this spec each time. The 
 There are two modes:
 
 - **Live** (sections 1 to 13): the Artifact tool is available. The page reads Freedcamp itself through the viewer's Freedcamp connector and can write back.
-- **Static** (section 14): no Artifact tool. Same look, data baked in, buttons copy prompts.
+- **Static** (section 14): no Artifact tool. Same look, data baked in, read only: it has no action buttons, because a saved page cannot reach Freedcamp or Claude.
+
+Live mode includes the picks controls in section 9a: a checkbox per task, Approve and Ignore, "Help with this", the "I can help with" offers, and a Confirm bar. Every control acts from the page itself, through `claude.use('mcp')` (Freedcamp) and `claude.use('sample')` (Claude drafting), exactly as "Plan my day" and "Suggest dates for my overdue tasks" do (section 10). No control produces text for the user to carry back to a Claude session.
 
 Copy rule for both modes: page text never contains an em dash or en dash.
 
@@ -18,7 +20,8 @@ Write one file named `focus-today.html`, in the shape the Artifact tool publishe
 3. a `meta` element named `claude:viewport-fit-sides` with the content `true`
 4. Google Fonts: a preconnect to `https://fonts.googleapis.com` and one stylesheet for Plus Jakarta Sans (weights 400, 500, 600, 700, 800) and IBM Plex Mono (weight 500), `display=swap`
 5. the page markup
-6. one inline `script` element, wrapped in an immediately invoked function with `'use strict'`
+6. one `script` element with `type="application/json"` and `id="fc-session"` holding the session context (section 9a)
+7. one inline `script` element, wrapped in an immediately invoked function with `'use strict'`
 
 Do not write the `html`, `head` or `body` wrapper elements; the Artifact tool adds them. No external scripts and no other external stylesheets. No build step, no framework.
 
@@ -59,8 +62,10 @@ A wrapper 760px wide at most, centred, padding 16px top, 32px bottom, side gutte
 
 Inside the card, in this order:
 
-1. **Header** (padding 20px 24px 18px, wraps on narrow screens). Left: a 40px square logo tile, radius 10px, background `#2780f8`, holding a white check-mark icon (an inline SVG stroke path, 22px). Next to it the `h1` "Your focus today" (20px, weight 800) and a subtitle line (13px, `--muted`) that reads "Loading your Freedcamp..." until data arrives. Right: a "Refresh" button.
+1. **Header** (padding 20px 24px 18px, wraps on narrow screens). Left: a 40px square logo tile, radius 10px, background `#2780f8`, holding a white check-mark icon (an inline SVG stroke path, 22px). Next to it the `h1` "Your focus today" (20px, weight 800) and a subtitle line (13px, `--muted`) that reads "Loading your Freedcamp..." until data arrives. Right: an "Apply my day" button (primary, the first control on the page, section 9a), then a "Refresh" button.
 2. **Banner**: hidden until needed, `role="alert"`, `--amber-tint` background, `--amber` text, weight 600, radius 10px, margin 0 24px 16px.
+2a. **Check-in** (only when the session context has `nudges` or `checkin` lines), padding 0 24px 14px, 14px. A small heading "Check-in" (12px uppercase, weight 700, `--muted`). First the `nudges`, one line each, in the order given: the text, then, when the task is loaded, small row-size buttons: "Work on it" (primary, first; opens the task dialog with the "Help with this" panel and its "Work on it" choice open, section 9a), "Open" (ghost; opens the task dialog, section 9), "Mark done" (`fc_update_status` with `{ item_id, status: 1 }`, then the row is marked done as in section 9), "Mark in progress" (`fc_update_status` with `{ item_id, status: 2 }`; hidden when it already is), "Blocked" (opens the task dialog with the comment box filled with "Blocked: " and focused, so the user writes the reason and presses "Post comment"), and "Reschedule" (shows a date input with `min` set to tomorrow and an "Apply date" button that calls `fc_update_task` with `{ task_id, due_date }`, as in section 10 Apply). Each button shows "Saving..." while it runs, then a green "Saved" label or the error. Then the `checkin` lines as a short numbered list.
+2b. **Helpers** (only when the session context has `agent_activity`), padding 0 24px 14px. A small heading "Helpers" styled like the Check-in heading, then one row per entry: the agent name ("Researcher", "Project manager", or the value as given) in weight 600, the job, and a status pill: `queued` default "Queued", `running` blue "Running", `needs_you` amber "Needs you", `done` green "Done", `failed` red "Failed". The agent `work-on-it` reads "Claude (Work on it)". Under it, in 13px `--muted`: the `result`, the task titles for `task_ids` (buttons that open the task dialog when the task is loaded, else "task <id>"), and "Updated HH:MM" from `updated`. When `needs_you` is set, add a line in `--amber`, weight 600: "Needs you: " plus the text. Helper rows are display only: helpers run in the Claude Code session, and their drafts are approved there.
 3. **Tiles**: a `nav` with four link tiles in a 4 column grid (2 columns under 560px), gap 10px. Each tile is `--sunken` with a 1px `--line` border, radius 12px, a number (24px, weight 800) over a label (12px, `--muted`, weight 600). Each links to its section's anchor.
 
    | Tile label | Number colour |
@@ -72,6 +77,7 @@ Inside the card, in this order:
 
 4. **Bands**. Each band has a 1px top border and a heading strip: `--sunken` background, padding 10px 24px, 12px uppercase, weight 700, letter spacing .06em, `--muted`, followed by the item count in IBM Plex Mono in `--text` (the Ask band has no count). Bands in order:
    1. "Ask Claude what is next" (section 10)
+   1a. "I can help with" (section 9a; only when the session context has offers)
    2. "Overdue"
    3. "Due next 7 days"
    4. "In progress"
@@ -79,11 +85,11 @@ Inside the card, in this order:
    6. "Recent updates"
 5. **Footer** (12px, `--muted`, 1px top border): "Completing a task, posting a comment and applying a date change your real Freedcamp account." When the task call reported more pages, put "Showing your first 100 assigned tasks. " in front.
 
-Outside the card: the task dialog (section 9) and a toast (fixed, bottom centre, `--text` background with `--surface` text, `role="status"`, `aria-live="polite"`, clears itself after 5 seconds).
+Directly under the tiles: the picks toolbar (section 9a). Outside the card: the Confirm bar (section 9a), the task dialog (section 9) and a toast (fixed, bottom centre, `--text` background with `--surface` text, `role="status"`, `aria-live="polite"`, clears itself after 5 seconds).
 
 While data loads, each list shows two or three skeleton bars (14px tall, `--skel`, radius 6px, a gentle opacity pulse that is switched off under `prefers-reduced-motion`). Tiles show "-" until data arrives.
 
-Mark the Refresh button, the tiles and the block of all six bands so they can be hidden together when the connector is missing (section 4). The header, banner and footer stay visible.
+Mark the Apply my day button, the Refresh button, the tiles and the block of all six bands so they can be hidden together when the connector is missing (section 4). The header, banner and footer stay visible.
 
 ### Shared pieces
 
@@ -112,7 +118,7 @@ The page uses two capabilities, declared when it is published (the skill gives t
 - If `mcp` is `null`: show the banner "Open this page from claude.ai to load your Freedcamp tasks and updates.", hide the Refresh button, tiles and bands, set the subtitle to "Not connected", and stop.
 - `sample` can arrive late or be `null` at start. Never hide the Claude buttons because of it. Ask for it again when a Claude button is clicked. If it is still `null`, show in that control's status line: "Claude drafting is not available. Allow it in the page permissions."
 - Every Freedcamp call is `mcp.callTool('Freedcamp', tool, input, { cache: false })`. Read `result.payload`. If the payload is a string, parse it as JSON.
-- Call only these seven tools: `fc_fetch_current_session`, `fc_fetch_tasks`, `fc_fetch_task`, `fc_fetch_notifications`, `fc_update_status`, `fc_update_task`, `fc_add_comment`. A tool that is not in the published list is refused.
+- Call only these eight tools: `fc_fetch_current_session`, `fc_fetch_tasks`, `fc_fetch_task`, `fc_fetch_notifications`, `fc_update_status`, `fc_update_task`, `fc_add_comment`, `fc_add_task`. A tool that is not in the published list is refused.
 
 ## 5. Loading data
 
@@ -294,6 +300,8 @@ Use one delegated click listener on the document. Rows are re-rendered often, so
 - "Mark complete" calls `fc_update_status` with `{ item_id, status: 1 }`, says "Completing..." then "Task completed.", turns the status pill green, marks the matching row done and updates the tiles. Keep any text already typed in the comment box. On failure, show the error in the dialog's status line and re-enable the button.
 - Close with Escape, the backdrop or the close button. Unlock scrolling and return focus to the control that opened it; if that row was re-rendered, find it again. Trap Tab and Shift+Tab inside the panel.
 
+**Write rule (every control).** The page writes to Freedcamp only after the user clicks a button that names the change ("Post comment", "Save description", "Create 3 subtasks", "Assign to Dima", "Apply in Freedcamp", "Mark done"). Anything Claude drafted is shown first in an editable preview. Nothing writes on load, on a checkbox change, or after a draft finishes. Never retry a write automatically.
+
 **Draft with Claude** (notification composer and dialog). Call `sample(prompt, { modelTier: 'quick', cache: false, onText })`. `onText` receives the whole answer so far (a string, or an object with `text`); put it in the textarea each time. While drafting, disable that composer's buttons and say "Claude is drafting...". When done, replace any em or en dash in the text with a comma and a space, then say "Edit the draft, then post it." or, if nothing came back, "Claude returned nothing. Try again." On failure, show the error and restore the earlier text if nothing was streamed. The user always edits and posts; never post a draft automatically.
 
 Every drafting prompt includes this instruction, with the user's name filled in:
@@ -304,6 +312,78 @@ Every drafting prompt includes this instruction, with the user's name filled in:
 - Dialog draft prompt: "Draft a comment on a Freedcamp task for <name>.", the instruction above, then the task title, its status, the first 700 characters of the description, the last 5 comments oldest first as "Author: text" (600 characters each), and the optional instruction as "Instruction from <name>: ...".
 
 **Refresh** reloads everything and forgets which rows were completed during the visit.
+
+## 9a. Picks: select, approve, ignore, help, offers, confirm
+
+The page lets the user pick what to work on today, get help on a task, and act on the session's offers, all from the page. Every action runs in the page through `mcp.callTool('Freedcamp', ...)` and `sample.json(...)`, the same mechanism as section 10, and follows the write rule in section 9. The page cannot reach the Claude session or the user's files, so it never writes `memory.md`; what it saves lives in Freedcamp (see "Confirm" below).
+
+**Session context.** Claude fills the `fc-session` JSON block when it publishes, from `./.freedcamp/memory.md` when that file exists, else with empty values. Escape `<` as `\u003c` inside it.
+
+```json
+{"generated_at": "2026-11-20T12:15:00+02:00", "focus_task_ids": ["73755437"], "ignored_task_ids": [], "offers": [{"n": 1, "job": "Research 3 competitors for \"Write brief\"", "task_ids": ["73755437"]}], "checkin": ["Focus: 1 of 3 done.", "Write brief is now overdue (2 days)."], "nudges": [{"id": "73755437", "text": "Hey, how's Write brief going? It's 2 days overdue."}], "agent_activity": [{"agent": "researcher", "job": "research 3 competitors", "task_ids": ["73755437"], "status": "needs_you", "result": "compared 3 tools, draft comment ready", "needs_you": "approve the draft comment", "updated": "2026-11-20T14:25:00+02:00"}, {"agent": "work-on-it", "job": "work on Fix login bug", "task_ids": ["73755440"], "status": "running", "result": "reproduced the bug, testing a fix", "needs_you": "", "updated": "2026-11-20T15:10:00+02:00"}], "recommended": [{"id": "73755437", "reason": "in today's plan"}, {"id": "73755441", "reason": "overdue, do today"}, {"id": "73755440", "reason": "I offered to help"}]}
+```
+
+Read it with `JSON.parse` inside a try block; on failure use empty values. A missing field counts as empty. `nudges`, `checkin` and `agent_activity` are display only (section 3, items 2a and 2b): render their text with `textContent`, and they take no part in picks or Confirm (the nudge buttons in item 2a act on their task directly). IDs are strings. Ignore IDs that are not among the loaded tasks.
+
+**Recommended tasks.** `recommended` is the agent's suggestion of what to check off today: at most 8 entries, each a task `id` and a short `reason` (40 characters at most, plain text). Claude fills it when it publishes, from three sources, in this order, without repeats: tasks in today's plan (`"in today's plan"`), overdue tasks triaged "do today" (`"overdue, do today"`), and tasks tied to its offers (`"I offered to help"`). An empty list means nothing is pre-checked.
+
+**Task rows.** Every task row (sections 7 and 10 cards too) gets, before the round complete button, a square checkbox (18px, `accent-color: var(--accent)`, `aria-label` "Select: " plus the title). At the end of the row, two small toggle buttons, "Approve" and "Ignore" (`aria-pressed`, padding 3px 9px, 12px). Pressed Approve uses `--green-tint` with `--green` text and border; pressed Ignore uses `--red-tint` with `--red`. Pressing a pressed button clears it. An approved row has a light `--green-tint` background; an ignored row has a muted, struck-through title. IDs in `focus_task_ids` start approved and IDs in `ignored_task_ids` start ignored.
+
+**"Help with this" button.** Every task row (sections 7 and 10 cards too) also gets, just before Approve, a button labeled exactly "Help with this": the primary style of "Apply my day" (`--btn` background, `--btn-text` text) in the row size (padding 3px 9px, 12px, radius 9px), `aria-label` "Help with this: " plus the title. It opens the task dialog (section 9) with a "Help with this" panel at the top of its content, above the description. It does not change checks, Approve, Ignore or the Confirm count.
+
+The panel reads "What help do you want on this task?" over six choice buttons: "Work on it" (primary, first), then "Update description", "Add a comment", "Create subtasks", "Assign it", "Plan it" (secondary). One choice is open at a time, with a "Cancel" that closes it. Each choice uses the task the dialog fetched with `fc_fetch_task` (it carries `project_id`, `list_id` and `h_parent_id`). Drafting choices call `sample.json(prompt, { modelTier: 'default', cache: false })` with the help context below, show "Claude is drafting...", and disable the choice's buttons while it runs. Remove dashes from drafted text as in drafting. If `sample` is `null`, say "Claude drafting is not available. Allow it in the page permissions."
+
+**Help context** (sent with every help prompt): today's date, the user's name, the task title, project, list, status, due label, assignee, the first 1500 characters of the description as plain text, the subtask titles, and the last 5 comments oldest first as "Author: text" (600 characters each). End every help prompt with: "Use only facts in the context; do not invent dates, numbers, people or promises. Plain text, no em dashes. Reply with JSON only, in exactly the shape given."
+
+0. **Work on it** (no drafting). Shows the line "Claude will work on this task in your Claude Code session and post progress here as comments.", a one-line input labelled "Instruction for Claude (optional)" with the placeholder "e.g. focus on the pricing section", and "Start working" (primary). "Start working" calls `fc_add_comment` with `{ item_id: <task id>, app_id: 2, description }`, where the description is plain text in exactly this shape (the second line only when an instruction was typed; the instruction on one line, at most 500 characters):
+
+   ```
+   [Claude: work on it]
+   Instruction: focus on the pricing section
+   Queued from the Your Focus Today dashboard.
+   ```
+
+   While it posts: "Queuing..." with the button disabled. On success: replace the choice with "Queued. Claude picks this up on the next check-in.", add the comment to the dialog's list, and give the task's row (and its dialog pills) a blue pill "Claude working". On failure: the error plus " It may have gone through, so check the task before trying again." Never post the marker twice for the same task in one visit; while the pill shows, the choice reads "Claude is already on this task." with no button.
+   The "Claude working" pill also shows on load for every task in an `agent_activity` entry whose `status` is `running` or `queued`.
+1. **Update description.** Prompt: "Rewrite the description of this Freedcamp task so anyone on the team knows what it is about, what done looks like, and any open questions. At most 150 words, short paragraphs or lines starting with "- "." Shape `{"description":"..."}`. Show the draft in an editable textarea with the hint "This replaces the current description.", then "Save description" (primary). Save calls `fc_update_task` with `{ task_id, description }`; on success, update the dialog's description and say "Description saved."
+2. **Add a comment.** Focus the dialog's existing "Add a comment" box and start its "Draft reply with Claude" at once (section 9). The user edits and presses "Post comment" as usual.
+3. **Create subtasks.** Prompt: "Break this Freedcamp task into at most 5 concrete subtasks, each a short action title under 80 characters. Leave out any that already exist under Subtasks." Shape `{"subtasks":[{"title":"..."}]}`. Keep at most 5 non-empty titles. Show each as an editable text input with a checkbox (checked), then "Create N subtasks" (N is the number checked). It calls `fc_add_task` once per checked title, one at a time, with `{ project_id, list_id, title, h_parent_id: <task id> }`. Freedcamp does not allow a subtask under a subtask, so when the task has a non-empty `h_parent_id`, leave `h_parent_id` out, label the button "Create N tasks in the same list", and say so above it. Each line then shows "Created" (linked to the new task's `url` from `data.tasks[0]`, if it passes the task link rule) or its error, and the run carries on after a failure. Afterwards re-fetch the task so the Subtasks list updates.
+4. **Assign it.** A `select` (labelled "Assign to") of the session users by `full_name`, the current user first as "Me (<name>)", with the current assignee preselected and marked "(current)". Then "Assign to <name>" (primary; disabled while the current assignee is selected). It calls `fc_update_task` with `{ task_id, assigned_to_id }` and, on success, updates the dialog's "Assigned to" pill and says "Assigned to <name>." If Freedcamp refuses (for example, the person is not in the project), show the error.
+5. **Plan it.** Prompt: "Write a short step-by-step plan to finish this Freedcamp task, at most 8 steps, each with a rough time in minutes." Shape `{"summary":"one sentence","steps":[{"step":"...","minutes":30}]}`. Keep steps with a non-empty `step`; keep `minutes` only when it is a whole number from 5 to 480. Show the summary, the numbered steps with their times and the total ("About 2 h 15 min"), then two buttons: "Post plan as comment" (`fc_add_comment` with `{ item_id, app_id: 2, description }`, the summary and the numbered steps as plain text) and "Create steps as subtasks" (opens the Create subtasks list from choice 3, filled with the steps instead of asking Claude).
+
+Under the choices, a muted line: "Work on it hands this task to Claude in your Claude Code session. Progress shows up here as comments."
+
+**Pre-checked suggestions.** When the tasks first load, check the checkbox of every row whose ID is in `recommended`, unless that ID is in `ignored_task_ids`. Under the title of each suggested row, show a hint in the meta line: a blue pill (`--accent-tint`, `--accent`) reading "Suggested: " plus the reason, e.g. "Suggested: in today's plan". Keep the hint while the row stays checked; when the user unchecks it, keep the pill but dim it (55% opacity) so they can still see it was suggested. The user can uncheck any suggestion. Pre-checking happens once per page load: a Refresh keeps the user's current checks and does not re-check rows they unchecked. Suggested rows are not approved until the user presses Approve or Confirm; at Confirm a checked row with no decision counts as approved, as below.
+
+**Suggestions from "Plan my day" on the page.** When the page's own "Plan my day" (section 10) returns items, check those rows too (unless the user unchecked them or they are ignored) and give them the hint "Suggested: in Claude's plan". Do not uncheck anything else.
+
+**"Apply my day" button** (header, section 3). One click checks the tasks the agent thinks are best for today:
+
+1. Build the suggestion list, without repeats, in this order: every `recommended` entry (with its own reason), then every item from the page's latest "Plan my day" result, if it ran during this visit (reason "in Claude's plan"). Keep only tasks that are loaded, still open, and not ignored in the current page state (an Ignore pressed on the page counts, as does `ignored_task_ids`).
+2. If that list is empty because there were no suggestions at all (not because every suggestion was ignored or done), and there are open tasks, run the page's own "Plan my day" request exactly as in section 10 (same pool, prompt, validation and rendering into the "Ask Claude what is next" band). While it runs, the button reads "Planning..." and is disabled, and the band's two buttons are disabled too. Then build the list again from its items. If `sample` is `null`, the request fails, or no item survives validation, skip to step 4 with an empty list; the band shows its usual message.
+3. Check every row in the list, including rows the user unchecked earlier (the click is an explicit request). Show the "Suggested: " pill with the reason on each one, at full opacity. Never uncheck a row, and never change an Approve or Ignore decision. Update the Confirm bar count.
+4. Toast: "Checked N suggested tasks." ("Checked 1 suggested task."), counting rows that were not checked before the click. If all were already checked: "All N suggested tasks are already checked." If the list is empty: "No suggestions yet".
+
+The button calls no Freedcamp tool and writes nothing; only Confirm writes picks to Freedcamp. It is disabled while the tasks are loading.
+
+**Picks toolbar** (padding 10px 24px, wraps): "Select all shown", "Approve selected", "Ignore selected", "Clear". The last three are disabled while nothing is checked. Approve, Ignore and Clear apply to the checked rows, then uncheck them.
+
+**Offers band** "I can help with": one row per offer, "<n>. <job>" and a muted "(task <titles>)", with two row-size buttons, "Start" (primary) and "Dismiss" (ghost).
+
+- **Start** runs the offer on the page. Fetch each tied task with `fc_fetch_task` (at most 3), then call `sample.json` with: "Do this job for <name>: <job>.", the help context of each task, and "You cannot browse the web. If the job needs outside research, list what to look up and why instead of inventing facts." with the shape `{"summary":"one sentence","result":"plain text, at most 250 words"}`, plus the closing line of the help context. Show the summary and the result in an editable textarea under the offer, then "Post as comment on <first task title>" (primary; `fc_add_comment` with `{ item_id, app_id: 2, description }`) and "Discard". After posting, the offer shows a green "Posted" label.
+- **Dismiss** hides the offer on this page. It writes nothing.
+
+**Confirm bar.** Fixed to the bottom of the viewport, full width, `--surface`, 1px top `--line` border, inner width 760px. Add bottom padding to the page wrapper and `scroll-padding-bottom` to the root so the bar never hides a focused row. Left: a live count (`aria-live="polite"`), e.g. "3 to work on, 1 ignored." or "Nothing picked yet." A checked row with no decision counts as approved, and the count says so. When suggestions are pre-checked, add "N suggested tasks are checked. Uncheck any you don't want." until the user changes a check. Right: "Confirm" (primary).
+
+**Confirm** saves the picks in Freedcamp, where the next check-in can see them. It opens a confirm panel just above the bar (`role="dialog"`, `aria-labelledby` its heading) that lists the exact changes:
+
+- "Mark In progress in Freedcamp: <titles>": approved or checked tasks whose `status` is 0.
+- "Already in progress or in review: <titles>": no change.
+- "Ignored on this page only: <titles>": nothing is written to Freedcamp for these.
+
+Buttons: "Apply in Freedcamp" (primary, shown only when there is at least one change) and "Cancel". Apply calls `fc_update_status` with `{ item_id, status: 2 }` for each task in the first list, one at a time, carrying on after a failure, and shows "Saving..." then a result line per task. Then toast "Saved: N marked In progress." (or "Saved: 1 marked In progress."; add " M could not be saved." when some failed), re-fetch only the tasks, and redraw. With no change to make, the panel says "Nothing to change in Freedcamp. Your picks stay on this page." and offers only "Close".
+
+Keep picks in page state across re-renders and Refresh. Also keep the ignored IDs in `localStorage` under `fc-ignored-<user_id>-<YYYY-MM-DD>`, inside a try block (the viewer may block storage; then they stay in page state only), and treat them as ignored on the next load that day. Do not use a download link; the artifact viewer blocks page-started downloads.
 
 ## 10. Ask Claude what is next
 
@@ -333,8 +413,8 @@ Today is <Weekday>, <Month> <day> (<YYYY-MM-DD>). These are the open Freedcamp t
 <pool lines>
 
 Pick at most 5 tasks to focus on today, most important first. Weigh how overdue each task is, its priority (3 is high), and work already in progress. Reply with JSON only, no prose, in exactly this shape:
-{"summary":"one sentence","items":[{"ref":1,"why":"one sentence reason"}]}
-Use only ref numbers from the list. No em dashes.
+{"summary":"one sentence","items":[{"ref":1,"why":"one sentence reason"}],"could_take":[{"ref":2,"job":"a short job Claude could draft from the task's own content"}]}
+List at most 3 entries in could_take, or none. Use only ref numbers from the list. No em dashes.
 ```
 
 Suggest dates:
@@ -348,12 +428,13 @@ Suggest a new due date for each task. Spread them from <tomorrow as YYYY-MM-DD> 
 Use only ref numbers from the list. No em dashes.
 ```
 
-**Validate the answer.** `items` must be an array, otherwise treat it as an unreadable answer (section 11). Skip an item when its `ref` is not a whole number in the pool or repeats an earlier one. In dates mode also skip it when the date does not match `/^\d{4}-\d{2}-\d{2}$/`, is not a real date, or is before today. Keep at most 5 (plan) or 12 (dates). Remove dashes from the summary and reasons as in drafting.
+**Validate the answer.** `items` must be an array, otherwise treat it as an unreadable answer (section 11). Skip an item when its `ref` is not a whole number in the pool or repeats an earlier one. In dates mode also skip it when the date does not match `/^\d{4}-\d{2}-\d{2}$/`, is not a real date, or is before today. Keep at most 5 (plan) or 12 (dates). In plan mode, `could_take` is optional: keep at most 3 entries whose `ref` is in the pool and whose `job` is a non-empty string. Remove dashes from the summary and reasons as in drafting.
 
 **Render.**
 
 - The summary as one line (weight 600).
 - A card per item: 1px `--line` border, radius 12px, padding 12px, with a 24px round number badge (`--accent-tint`), the tag and title (a button that opens the task dialog), the project, a due pill, and the reason (13px).
+- Plan mode: each card also gets a row-size primary "Work on it" button (opens the task dialog with the "Work on it" choice open, section 9a) and a ghost "Defer" button. It shows a date input with `min` set to tomorrow and an "Apply date" button that works like Apply below. Under the cards, when `could_take` has entries, a small "I could take" list: "<job>" for "<title>", each with "Start" and "Dismiss" that work exactly like the offers band (section 9a).
 - Dates mode: the due pill reads "Was due Aug 25". Under the reason, a date input (`type="date"`) with `min` set to today and the suggested date as its value, then an "Apply" button. Reading the input must update page state without re-rendering, so the field keeps focus.
 - If some items were skipped: "N suggestions were skipped because the task or date was not valid." (singular: "1 suggestion was skipped ...").
 - If no item survived: "Claude did not return any usable suggestions. Ask again."
@@ -387,8 +468,8 @@ Choose the message from `error.code`. Never show one generic message for everyth
 ## 13. Check before publishing
 
 1. If a shell is available, extract the script and run `node --check` on it.
-2. Every tool name in the script is one of the seven in section 4.
-3. No sample or placeholder data is left in the file: no names, tasks or counts.
+2. Every tool name in the script is one of the eight in section 4, and every write sits behind a button that names it (section 9, write rule). The script has no clipboard code and no prompt meant to be pasted anywhere.
+3. No sample or placeholder data is left in the file: no names, tasks or counts. The `fc-session` block holds only real values from memory.md and this conversation (including `recommended`), or empty values.
 4. No em dash or en dash in the page copy.
 5. Every token in section 2 is defined, and the 20 with a dark value are repeated in both dark blocks.
 6. Re-read sections 5 to 11 against the script once. A missed rule is easier to fix now than after publishing.
@@ -409,22 +490,20 @@ Build the same page with the same tokens, layout, rows and copy, with these diff
 
 Bake in only the fields the page shows. Escape everything; it is user content.
 
-**Behaviour.** A saved file cannot talk to Claude or Freedcamp, so no control may pretend to.
+**Behaviour.** A saved file cannot talk to Claude or Freedcamp, so it has no action buttons and no control may pretend to act.
 
-- The check button only toggles the row locally.
-- A task title is a link to the task in Freedcamp. There is no task dialog and no composer.
+- Task rows show no check button, no picks controls and no "Help with this". A task title is a link to the task in Freedcamp. There is no task dialog and no composer.
 - "Reply" is a link that opens the item in Freedcamp in a new tab.
-- These buttons copy a ready-to-paste prompt to the clipboard and show the toast "Prompt copied. Paste it into Claude." for 3 seconds:
-
-  | Button | Prompt |
-  |---|---|
-  | Refresh | Refresh my Freedcamp focus dashboard. |
-  | Draft reply with Claude | Draft a reply to <actor>'s comment on "<item>" (<project>). |
-  | Plan my day | Plan my day from my Freedcamp tasks and notifications: overdue first, then due soon, then in progress. |
-  | Suggest dates for my overdue tasks | Reschedule my N overdue Freedcamp tasks. Suggest new due dates by priority, then update them once I confirm. |
-
-- Do not add a button without a handler.
+- Leave out Refresh, "Apply my day", the "Ask Claude what is next" band, the offers band and the Confirm bar.
 - Subtitle: "<First name>, <Weekday>, <Month> <day> · Updated <HH:MM>", from the time you built it.
-- Footer: "This is a saved copy. Buttons copy a prompt to paste into Claude."
+- Footer: "This is a read-only copy. Ask Claude in this chat to act on a task."
 
-**Output.** Show the file as an artifact if the client can render one. Otherwise save it as `freedcamp-focus.html` in the working directory, give the full path, and tell the user to open it in a browser. Say plainly: "To use a button, click it, then paste into Claude."
+**Output.** Show the file as an artifact if the client can render one, and say plainly: "This is a read-only copy. Tell me here what to do on any task and I'll do it in Freedcamp." If the client can neither publish nor render an artifact (for example, Claude Code with an API key), do not write a local page. Give the answer in the chat as the spec describes, with no artifact.
+
+## 15. Publish and give the link (end of every build)
+
+At the end of a build, publish the page and hand the user the link, but only through the real publish step:
+
+1. **Signed in to claude.ai** (the Artifact tool is available: Claude Code CLI or desktop app after `/login`): publish with the Artifact tool as `SKILL.md` says. Give the user the link the tool returns (a `https://claude.ai/code/artifact/...` address; Claude Code also opens it in the browser) and say: "Open it in claude.ai to use the buttons." In an app that shows the artifact as a card, the card is the link; do not paste the URL there.
+2. **Not signed in** (no Artifact tool, for example an API key, Bedrock, Vertex, Foundry or `-p`): there is no link to give. Say in one line that the interactive page needs a claude.ai login (`/login`), then follow the **Output** rule above.
+3. Never make up, guess or rebuild a link. Use only the URL the Artifact tool returned.

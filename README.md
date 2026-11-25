@@ -4,18 +4,24 @@ Use Claude to work with Freedcamp projects by name, get task and notification up
 
 ## Install
 
+> The plugin is not yet in Claude's official plugin directory. Until it is approved, install it straight from this GitHub repo.
+
 ### Claude on the web or desktop
 
 1. Open **Customize → Plugins**.
-2. Choose **Add → Add marketplace** and enter `githubfreedcamp/freedcamp-claude-plugins`.
-3. Install **Freedcamp Live Dashboard**.
-4. Connect to Freedcamp when Claude prompts you on first use.
+2. Choose **Add → Add marketplace**.
+3. Enter `githubfreedcamp/freedcamp-claude-plugins` (or the full URL `https://github.com/githubfreedcamp/freedcamp-claude-plugins`).
+4. Install **Freedcamp Live Dashboard** from the new **freedcamp** marketplace.
+5. Connect to Freedcamp when Claude prompts you on first use.
 
 ### Claude Code
 
 ```text
-/plugin install freedcamp --marketplace githubfreedcamp/freedcamp-claude-plugins
+/plugin marketplace add githubfreedcamp/freedcamp-claude-plugins
+/plugin install freedcamp@freedcamp
 ```
+
+To get updates later, run `/plugin marketplace update freedcamp`.
 
 The plugin registers the Freedcamp MCP server at `https://mcp.freedcamp.com/mcp`. You must authenticate with Freedcamp and approve the requested tool or page permissions when prompted.
 
