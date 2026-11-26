@@ -61,7 +61,9 @@ Inside the card, in this order:
 
 1. **Header** (padding 20px 24px 18px, wraps on narrow screens). Left: a 40px square logo tile, radius 10px, background `#2780f8`, holding a white check-mark icon (an inline SVG stroke path, 22px). Next to it the `h1` "Your focus today" (20px, weight 800) and a subtitle line (13px, `--muted`) that reads "Loading your Freedcamp..." until data arrives. Right: a "Refresh" button.
 2. **Banner**: hidden until needed, `role="alert"`, `--amber-tint` background, `--amber` text, weight 600, radius 10px, margin 0 24px 16px.
-3. **Tiles**: a `nav` with four link tiles in a 4 column grid (2 columns under 560px), gap 10px. Each tile is `--sunken` with a 1px `--line` border, radius 12px, a number (24px, weight 800) over a label (12px, `--muted`, weight 600). Each links to its section's anchor.
+3. **Project bar** (padding 0 24px 14px): a `label` reading "Project" (12px, weight 700, `--muted`) beside a native `select` styled like a text input, 320px wide at most. Until the session arrives it is disabled and holds the single option "Loading projects...". Section 9 gives its options and behaviour. On the right of the same row (pushed right, wrapping under on narrow screens): a "Claude model" label and `select`, 200px wide at most (section 16).
+4. **Tabs**: a row with padding 0 24px and a 1px `--line` bottom border that scrolls sideways instead of wrapping. Four tabs in this order: "Focus today", "Organize projects", "Create project", "Analyze project". Each tab is a button with no background, padding 10px 12px, 13px, weight 600, `--muted`, no border except a 2px transparent bottom border. The selected tab uses `--accent` for its text and bottom border. "Focus today" is selected at start. Each tab shows one panel: items 5 and 6 together are the "Focus today" panel, and item 7 gives the other three.
+5. **Tiles**: a `nav` with five link tiles (Overdue, Due next 7 days, In progress, Waiting on you, Recent updates) in a 5 column grid (2 columns under 560px), gap 10px. Each tile is `--sunken` with a 1px `--line` border, radius 12px, a number (24px, weight 800) over a label (12px, `--muted`, weight 600). Each links to its section's anchor.
 
    | Tile label | Number colour |
    |---|---|
@@ -70,20 +72,21 @@ Inside the card, in this order:
    | In progress | `--text` |
    | Waiting on you | `--pink` |
 
-4. **Bands**. Each band has a 1px top border and a heading strip: `--sunken` background, padding 10px 24px, 12px uppercase, weight 700, letter spacing .06em, `--muted`, followed by the item count in IBM Plex Mono in `--text` (the Ask band has no count). Bands in order:
+6. **Bands**. Each band has a 1px top border and a heading strip: `--sunken` background, padding 10px 24px, 12px uppercase, weight 700, letter spacing .06em, `--muted`, followed by the item count in IBM Plex Mono in `--text` (the Ask band has no count). Bands in order:
    1. "Ask Claude what is next" (section 10)
    2. "Overdue"
    3. "Due next 7 days"
    4. "In progress"
    5. "Waiting on you"
    6. "Recent updates"
-5. **Footer** (12px, `--muted`, 1px top border): "Completing a task, posting a comment and applying a date change your real Freedcamp account." When the task call reported more pages, put "Showing your first 100 assigned tasks. " in front.
+7. **Other panels.** "Organize projects" follows section 18, "Create project" section 15 and "Analyze project" section 17.
+8. **Footer** (12px, `--muted`, 1px top border): "Completing a task, posting a comment, applying a date or a reorganization and creating a project change your real Freedcamp account." When the task call reported more pages, put "Showing your first 100 assigned tasks. " in front, or "Showing your first 100 assigned tasks in this project. " when a project is selected.
 
 Outside the card: the task dialog (section 9) and a toast (fixed, bottom centre, `--text` background with `--surface` text, `role="status"`, `aria-live="polite"`, clears itself after 5 seconds).
 
 While data loads, each list shows two or three skeleton bars (14px tall, `--skel`, radius 6px, a gentle opacity pulse that is switched off under `prefers-reduced-motion`). Tiles show "-" until data arrives.
 
-Mark the Refresh button, the tiles and the block of all six bands so they can be hidden together when the connector is missing (section 4). The header, banner and footer stay visible.
+Mark the Refresh button, the project bar, the tabs and all four panels so they can be hidden together when the connector is missing (section 4). The header, banner and footer stay visible.
 
 ### Shared pieces
 
@@ -109,25 +112,25 @@ The page uses two capabilities, declared when it is published (the skill gives t
   ```
 
 - On start: attach the event listeners, then await `mcp`. Ask for `sample` without waiting for it.
-- If `mcp` is `null`: show the banner "Open this page from claude.ai to load your Freedcamp tasks and updates.", hide the Refresh button, tiles and bands, set the subtitle to "Not connected", and stop.
+- If `mcp` is `null`: show the banner "Open this page from claude.ai to load your Freedcamp tasks and updates.", hide the Refresh button, the project bar, the tabs and the panels, set the subtitle to "Not connected", and stop.
 - `sample` can arrive late or be `null` at start. Never hide the Claude buttons because of it. Ask for it again when a Claude button is clicked. If it is still `null`, show in that control's status line: "Claude drafting is not available. Allow it in the page permissions."
 - Every Freedcamp call is `mcp.callTool('Freedcamp', tool, input, { cache: false })`. Read `result.payload`. If the payload is a string, parse it as JSON.
-- Call only these seven tools: `fc_fetch_current_session`, `fc_fetch_tasks`, `fc_fetch_task`, `fc_fetch_notifications`, `fc_update_status`, `fc_update_task`, `fc_add_comment`. A tool that is not in the published list is refused.
+- Call only these tools: `fc_fetch_current_session`, `fc_fetch_tasks`, `fc_fetch_task`, `fc_fetch_notifications`, `fc_update_status`, `fc_update_task`, `fc_add_comment`, and for the Create project tab (section 15) `fc_add_project`, `fc_add_list`, `fc_fetch_lists`, `fc_add_task`, `fc_add_milestone`, `fc_add_discussion`, `fc_add_issue`, `fc_add_wiki`, `fc_add_event`, and for the Analyze project tab (section 17) `fc_fetch_milestones`, `fc_fetch_issues`, `fc_fetch_discussions`, `fc_fetch_wikis`, `fc_fetch_times`, `fc_fetch_events`, `fc_fetch_notifications_by_project`. The Organize projects tab (section 18) uses only tools already listed: `fc_fetch_tasks`, `fc_fetch_lists`, `fc_fetch_milestones`, `fc_fetch_issues`, `fc_add_list`, `fc_update_task`. A tool that is not in the published list is refused.
 
 ## 5. Loading data
 
-Loading runs at start and on Refresh. Disable Refresh while it runs and clear the banner first.
+Loading runs at start and on Refresh. Disable Refresh and the project picker while it runs and clear the banner first.
 
 1. `fc_fetch_current_session` with `{}`. The data is under `data` (fall back to the payload itself). Keep:
    - `user_id` as a string: the current user.
    - `users` (an array): index it by `user_id`. From the current user take `full_name` (else `first_name`, else "you"), `first_name` and `timezone`.
-   - `projects` (an array): index it by `project_id` to get each `project_name`.
+   - `projects` (an array): index it by `project_id` to get each `project_name`, then fill and enable the project picker (section 9).
    - Timezone: the user's `timezone` if `Intl.DateTimeFormat` accepts it, else the browser's timezone, else `UTC`.
 
-   If this call fails: show the error (section 11) in the banner, set the subtitle to "Could not load Freedcamp.", re-enable Refresh and stop.
+   If this call fails: show the error (section 11) in the banner, set the subtitle to "Could not load Freedcamp.", re-enable Refresh, leave the project picker disabled with the single option "All projects", and stop.
 2. Then, together with `Promise.allSettled` so one failure does not blank the other:
-   - `fc_fetch_tasks` with `{ filters: { assigned_to_id: [userId], order_due_date: 'asc' }, limit: 100 }`. The payload is `{ tasks: [...], meta: { has_more } }` with no `data` wrapper. Never send a `status` filter (it returns HTTP 400). Drop tasks whose `status` is 1 (completed) or 3 (invalid) yourself. Remember `has_more` for the footer.
-   - `fc_fetch_notifications` with `{}`. The list is at `data.notifications`.
+   - `fc_fetch_tasks` with `{ filters: { assigned_to_id: [userId], order_due_date: 'asc' }, limit: 100 }`. When a project is selected in the picker, add `project_id` (a string) at the top level of the input, next to `filters`; leave it out for "All projects". Every task fetch on the page follows this rule, and drops its answer if the selected project changed while it ran. The payload is `{ tasks: [...], meta: { has_more } }` with no `data` wrapper. Never send a `status` filter (it returns HTTP 400). Drop tasks whose `status` is 1 (completed) or 3 (invalid) yourself. Remember `has_more` for the footer.
+   - `fc_fetch_notifications` with `{}`. The list is at `data.notifications`. This tool has no project filter, so keep the whole list and, when a project is selected, show only the notifications whose `project_id` matches.
 3. A failed call puts its error text inside the sections it feeds, those tiles show "-" and those heading counts are empty. The other sections render normally.
 4. Subtitle after loading: `<First name>, <Weekday>, <Month> <day> · Updated <HH:MM>`, for example "Angel, Thursday, November 19 · Updated 14:05". The time is 24 hour, in the user's timezone. Leave the first name out when it is unknown.
 
@@ -141,7 +144,7 @@ These are the real field names in the Freedcamp responses. Use them exactly and 
 |---|---|
 | `user_id` | the current user's id |
 | `users` | an array; each has `user_id`, `full_name`, `first_name`, `timezone` |
-| `projects` | an array; each has `project_id`, `project_name` |
+| `projects` | an array; each has `project_id`, `project_name`, `group_id`, `group_name` and `archived_ts` (`null` unless the project is archived) |
 
 **Task in the list** (`fc_fetch_tasks`, each entry of `tasks`):
 
@@ -257,7 +260,7 @@ Turn each notification into one row, or skip it.
 - **Quote:** a comment as plain text on one line, cut to about 160 characters with an ellipsis. For Needs you, Mention and Comment it is the comment that matched the rule, so the quote and the actor belong together. For Completed, Reassigned and Edit it is the newest comment, if there is one. Event shows no quote. Keep the full text for drafting.
 - **Can reply** also needs `f_can_add_comment` not to be `false`.
 
-**Order and placement.** Needs you first, then newest first. "Waiting on you" holds the Needs you rows; its count is also the fourth tile. "Recent updates" holds the rest. Empty texts: "Nobody is waiting on an answer from you." and "No recent updates."
+**Order and placement.** Needs you first, then newest first. "Waiting on you" holds the Needs you rows; its count is also the fourth tile. "Recent updates" holds the rest; its count is the fifth tile (default text colour). Empty texts: "Nobody is waiting on an answer from you." and "No recent updates."
 
 **Notification row:**
 
@@ -272,6 +275,18 @@ Turn each notification into one row, or skip it.
 ## 9. Interactions
 
 Use one delegated click listener on the document. Rows are re-rendered often, so keep typed text and open state in page state, not only in the DOM.
+
+**Project picker.** Options: "All projects" (empty value) first, then every session project whose `archived_ts` is `null`, inside one `optgroup` per `group_id` labelled with its `group_name`. Sort groups, and projects within a group, by name. Project names repeat across groups, so never list them without the group. Keep the selected project id in page state. Refresh keeps the selection if that project is still listed, otherwise it falls back to "All projects". Disable the picker while a full load, an Ask request or an Apply is running, so an answer never lands on a different project. The selection is shared by all tabs: Analyze project starts on it, and the Organize and Create tabs ignore it.
+
+When the selection changes:
+
+1. Redraw both notification bands from the list already loaded, filtered as in section 5. No fetch.
+2. Empty the task list, then re-fetch only the tasks (section 5). While that runs, the three task sections show skeleton bars, their tiles show "-" and both Ask buttons are disabled, so Ask never runs on the old project's tasks. A failure shows its error in those sections, as in section 5.
+3. Clear the Ask output and status, because its ref numbers belong to the old task pool.
+
+Tiles, heading counts and the Ask pools then cover only the selected project.
+
+**Tabs.** The row has `role="tablist"` and `aria-label="Dashboard views"`. Each tab has `role="tab"`, `aria-selected`, `aria-controls` naming its panel, and `tabindex` 0 when selected, else -1. Each panel has `role="tabpanel"`, `aria-labelledby` naming its tab, and is `hidden` unless selected. A click selects a tab. Left and Right arrows move to the neighbouring tab and wrap around, Home and End go to the first and last; moving selects and focuses the tab. Keep the selected tab in page state; Refresh does not change it. Switching tabs fetches nothing and keeps everything in the "Focus today" panel as it was: typed text, open composers and the Ask output.
 
 **Complete a task.** The check button calls `fc_update_status` with `{ item_id, status: 1 }`. Mark the row done first and remember the task's original status. On failure, undo and show the error in the toast. Clicking a done row restores the original status with the same tool (not always 0); on failure, mark it done again and show the error.
 
@@ -294,7 +309,7 @@ Use one delegated click listener on the document. Rows are re-rendered often, so
 - "Mark complete" calls `fc_update_status` with `{ item_id, status: 1 }`, says "Completing..." then "Task completed.", turns the status pill green, marks the matching row done and updates the tiles. Keep any text already typed in the comment box. On failure, show the error in the dialog's status line and re-enable the button.
 - Close with Escape, the backdrop or the close button. Unlock scrolling and return focus to the control that opened it; if that row was re-rendered, find it again. Trap Tab and Shift+Tab inside the panel.
 
-**Draft with Claude** (notification composer and dialog). Call `sample(prompt, { modelTier: 'quick', cache: false, onText })`. `onText` receives the whole answer so far (a string, or an object with `text`); put it in the textarea each time. While drafting, disable that composer's buttons and say "Claude is drafting...". When done, replace any em or en dash in the text with a comma and a space, then say "Edit the draft, then post it." or, if nothing came back, "Claude returned nothing. Try again." On failure, show the error and restore the earlier text if nothing was streamed. The user always edits and posts; never post a draft automatically.
+**Draft with Claude** (notification composer and dialog). Call `sample(prompt, { modelTier, cache: false, onText })`. `onText` receives the whole answer so far (a string, or an object with `text`); put it in the textarea each time. While drafting, disable that composer's buttons and say "Claude is drafting...". When done, replace any em or en dash in the text with a comma and a space, then say "Edit the draft, then post it." or, if nothing came back, "Claude returned nothing. Try again." On failure, show the error and restore the earlier text if nothing was streamed. The user always edits and posts; never post a draft automatically.
 
 Every drafting prompt includes this instruction, with the user's name filled in:
 
@@ -309,7 +324,7 @@ Every drafting prompt includes this instruction, with the user's name filled in:
 
 The band holds two buttons, "Plan my day" (primary) and "Suggest dates for my overdue tasks", a status line, and an output area. Disable both buttons while a request runs and show "Claude is thinking...".
 
-Plain streamed text looks unformatted, so ask for JSON with `sample.json(prompt, { modelTier: 'default', cache: false })` and render cards. The answer is the object itself, or under `data`.
+Plain streamed text looks unformatted, so ask for JSON with `sample.json(prompt, { modelTier, cache: false })` (section 16 gives `modelTier` for a plan) and render cards. The answer is the object itself, or under `data`.
 
 **Pool.** Build a numbered list of open tasks (leave out tasks completed during the visit) and refer to tasks only by number.
 
@@ -387,11 +402,12 @@ Choose the message from `error.code`. Never show one generic message for everyth
 ## 13. Check before publishing
 
 1. If a shell is available, extract the script and run `node --check` on it.
-2. Every tool name in the script is one of the seven in section 4.
+2. Every tool name in the script is one of the tools in section 4.
 3. No sample or placeholder data is left in the file: no names, tasks or counts.
 4. No em dash or en dash in the page copy.
 5. Every token in section 2 is defined, and the 20 with a dark value are repeated in both dark blocks.
-6. Re-read sections 5 to 11 against the script once. A missed rule is easier to fix now than after publishing.
+6. The Organize projects tab follows section 18 (it writes only through Apply), the Create project tab section 15, and the Analyze project tab section 17 (it calls no write tool).
+7. Re-read sections 3 to 11 against the script once. A missed rule is easier to fix now than after publishing.
 
 To change a published page, edit the same file and publish it again from the same path with the full capabilities object. A tool the page calls is not granted unless it is declared.
 
@@ -403,14 +419,15 @@ Build the same page with the same tokens, layout, rows and copy, with these diff
 
 **Data.** Fetch it yourself in the conversation, then bake it into the script as one JSON object:
 
-1. The session lookup: the user's name, timezone, project names.
+1. The session lookup: the user's name, timezone, and for each project that is not archived its id, name, group id and group name.
 2. `fc_fetch_tasks` with `assigned_to_id: [user_id]`, `order_due_date: "asc"`, `limit: 100`, no `status` filter. Drop completed and invalid tasks.
 3. `fc_fetch_notifications`, classified by section 8.
 
-Bake in only the fields the page shows. Escape everything; it is user content.
+Bake in only the fields the page shows, plus the `project_id` of each task and notification for the picker. Escape everything; it is user content.
 
 **Behaviour.** A saved file cannot talk to Claude or Freedcamp, so no control may pretend to.
 
+- The project picker filters the baked tasks and notifications inside the page; nothing is fetched. The tabs work as in live mode, but the other three panels are placeholders (padding 28px 24px, the tab's name as a 15px weight-700 title over one 14px `--muted` line, nothing else): "Organizing projects needs the live dashboard.", "Creating a project needs the live dashboard." and "Analyzing a project needs the live dashboard."
 - The check button only toggles the row locally.
 - A task title is a link to the task in Freedcamp. There is no task dialog and no composer.
 - "Reply" is a link that opens the item in Freedcamp in a new tab.
@@ -428,3 +445,24 @@ Bake in only the fields the page shows. Escape everything; it is user content.
 - Footer: "This is a saved copy. Buttons copy a prompt to paste into Claude."
 
 **Output.** Show the file as an artifact if the client can render one. Otherwise save it as `freedcamp-focus.html` in the working directory, give the full path, and tell the user to open it in a browser. Say plainly: "To use a button, click it, then paste into Claude."
+
+## 15. Create project tab (live)
+
+The Create project panel asks a few questions, has Claude draft an outline, and creates the project and its items once the user approves. Its full spec is `create-project-spec.md` in this folder. Read it before writing the page.
+
+## 16. Claude model
+
+Every Claude call on the page takes its `modelTier` from one setting, the "Claude model" select in the project bar. Options, in order: "Auto" (`auto`), "Fast" (`quick`), "Balanced" (`default`), "Most capable" (`complex`), and "Same as my chat" (`inherit`) only when `(await sample.limits()).modelTiers` includes `"inherit"`. Its `title`: "The model the Claude buttons use. Auto uses Fast for drafts and Balanced for plans and outlines."
+
+- **Auto** keeps the defaults: `quick` for drafting a reply or comment, `default` for Plan my day, Suggest dates and the project outline. Every other choice applies to all of them.
+- Remember the choice in `localStorage` (key `fc-focus-model`), inside try/catch; start on Auto when it is missing or unreadable. A stored `inherit` the viewer cannot use counts as Auto.
+- The Create project form has its own model field that defaults to the page setting (`create-project-spec.md`).
+- Never name a specific model id; tiers keep working as models change.
+
+## 17. Analyze project tab (live)
+
+The Analyze project panel lets the user pick a project, reads all its content and its activity timeline, and runs six kinds of analysis with Claude. It never writes to Freedcamp. Its full spec is `analyze-project-spec.md` in this folder. Read it before writing the page.
+
+## 18. Organize projects tab (live)
+
+The Organize projects panel lets the user pick up to 5 projects, reads their task lists, tasks, milestones and issues, and asks Claude how to reorganize them. Claude returns advice plus task and list changes (new list, move task, priority, due date, assignee); each change applies only when the user presses Apply. Its full spec is `organize-projects-spec.md` in this folder. Read it before writing the page.

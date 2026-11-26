@@ -178,19 +178,19 @@ Tell the user up front that building the page takes a few minutes.
 
 ### Live dashboard (the Artifact tool is available)
 
-The page reads Freedcamp itself when it opens and can open tasks, complete them, post comments, draft replies with Claude and apply suggested due dates.
+The page reads Freedcamp itself when it opens and can open tasks, complete them, post comments, draft replies with Claude and apply suggested due dates. A project picker at the top narrows it to one project. It has four tabs: "Focus today" holds the dashboard; "Create project" asks a few questions, has Claude draft an outline and creates the project and its items once approved; "Analyze project" reads one project's content and activity timeline and runs Claude analyses (health, risks, timeline, workload, stakeholder update, next steps) without changing anything; "Organize projects" reads up to 5 projects, has Claude suggest a better organization, and applies the task and list changes the user picks.
 
 1. Do not fetch tasks or notifications in the conversation to bake into the page. The page fetches its own data.
-2. Write the page to a file named `focus-today.html`, following sections 1 to 12 of `dashboard-spec.md`.
+2. Write the page to a file named `focus-today.html`, following sections 1 to 12 and 15 to 18 of `dashboard-spec.md`, `create-project-spec.md` for the Create project tab, `analyze-project-spec.md` for the Analyze project tab and `organize-projects-spec.md` for the Organize projects tab.
 3. Run the checks in section 13 of the spec.
 4. Publish the file with the Artifact tool, `icon: "checklist"`, and exactly these capabilities:
 
 ```json
-{"mcp": {"servers": [{"server": "Freedcamp", "tools": ["fc_fetch_current_session", "fc_fetch_tasks", "fc_fetch_task", "fc_fetch_notifications", "fc_update_status", "fc_update_task", "fc_add_comment"]}]}, "sample": {}}
+{"mcp": {"servers": [{"server": "Freedcamp", "tools": ["fc_fetch_current_session", "fc_fetch_tasks", "fc_fetch_task", "fc_fetch_notifications", "fc_update_status", "fc_update_task", "fc_add_comment", "fc_add_project", "fc_add_list", "fc_fetch_lists", "fc_add_task", "fc_add_milestone", "fc_add_discussion", "fc_add_issue", "fc_add_wiki", "fc_add_event", "fc_fetch_milestones", "fc_fetch_issues", "fc_fetch_discussions", "fc_fetch_wikis", "fc_fetch_times", "fc_fetch_events", "fc_fetch_notifications_by_project"]}]}, "sample": {}}
 ```
 
 5. Name the page "Your Focus Today". Do not paste the URL, the app shows a card.
-6. Tell the user in two or three sentences: what the page does, that Claude will ask them to allow the Freedcamp connection and Claude drafting on first use, and that completing a task, posting a comment and applying a due date write to the real account. Say it was not exercised in a browser unless it was.
+6. Tell the user in two or three sentences: what the page does (including that Analyze project only reads, that Organize projects changes nothing until the user presses Apply on a suggestion, that a Claude model picker sets the model for every Claude button, and that Create project turns on the chosen apps and adds teammates, then lists anything Freedcamp did not apply), that Claude will ask them to allow the Freedcamp connection and Claude drafting on first use, and that completing a task, posting a comment, applying a due date or a suggested reorganization and creating a project write to the real account. Say it was not exercised in a browser unless it was.
 
 The page needs a connector named "Freedcamp" in the viewer's Claude account. If the viewer sees "No matching connector found", they add it in Claude Settings, Connectors.
 
