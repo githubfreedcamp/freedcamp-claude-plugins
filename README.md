@@ -15,10 +15,10 @@ Use Claude to work with Freedcamp projects by name, get task and notification up
 
 ```text
 /plugin marketplace add githubfreedcamp/freedcamp-claude-plugins
-/plugin install freedcamp-assistant@freedcamp-plugins
+/plugin install freedcamp-assistant@freedcamp
 ```
 
-To get updates later, run `/plugin marketplace update freedcamp-plugins`.
+To get updates later, run `/plugin marketplace update freedcamp`.
 
 The plugin registers the Freedcamp MCP server at `https://mcp.freedcamp.com/mcp`. You must authenticate with Freedcamp and approve the requested tool or page permissions when prompted.
 
