@@ -1,0 +1,12 @@
+{
+  "name": "freedcamp-onboarding",
+  "displayName": "Freedcamp Onboarding",
+  "version": "0.3.0",
+  "description": "A first-run wizard that learns who you are from your Freedcamp account, asks about your goals, and writes a heartbeat file, plus a heartbeat skill that runs on every loop tick to check in on your focus tasks and offer help.",
+  "author": { "name": "Freedcamp", "url": "https://freedcamp.com" },
+  "homepage": "https://freedcamp.com",
+  "privacyPolicyUrl": "https://freedcamp.com/help_/tutorials/wiki/wiki_public/view/pAbab",
+  "repository": "https://github.com/githubfreedcamp/freedcamp-claude-plugins",
+  "license": "MIT",
+  "keywords": ["freedcamp", "project-management", "onboarding", "heartbeat", "loop"]
+}

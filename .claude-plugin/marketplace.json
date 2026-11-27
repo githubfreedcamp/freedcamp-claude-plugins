@@ -1,15 +1,25 @@
 {
-  "name": "freedcamp",
-  "owner": {
-    "name": "Freedcamp",
-    "url": "https://freedcamp.com"
-  },
-  "description": "Freedcamp plugins for Claude.",
-  "plugins": [
-    {
-      "name": "freedcamp",
-      "source": "./freedcamp-live-dashboard",
-      "description": "Manage Freedcamp projects, tasks and updates by name, plus a live \"Your focus today\" dashboard."
-    }
-  ]
+    "name": "freedcamp",
+    "owner": {
+        "name": "Freedcamp",
+        "url": "https://freedcamp.com"
+    },
+    "description": "Freedcamp plugins for Claude.",
+    "plugins": [
+        {
+            "name": "freedcamp",
+            "source": "./freedcamp-live-dashboard",
+            "description": "Manage Freedcamp projects, tasks and updates by name, plus a live \"Your focus today\" dashboard."
+        },
+        {
+            "name": "freedcamp-onboarding",
+            "source": "./freedcamp-onboarding",
+            "description": "First-run onboarding wizard that learns your Freedcamp work and goals, plus a heartbeat skill for /loop that checks in and offers help."
+        },
+        {
+            "name": "artifact-wake",
+            "source": "./artifact-wake",
+            "description": "Wake Claude from an artifact: a dashboard writes requests to a local inbox.md or a Freedcamp Claude Inbox, and Claude answers on 'check', a loop, a script or n8n."
+        }
+    ]
 }

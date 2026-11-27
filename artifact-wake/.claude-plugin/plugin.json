@@ -1,0 +1,20 @@
+{
+  "name": "artifact-wake",
+  "version": "0.2.0",
+  "description": "Wake Claude from an artifact: a dashboard writes requests to a local inbox.md (via a bundled local server) or a Freedcamp Claude Inbox; Claude answers on 'check', a /loop, a headless claude -p script, or an instant n8n route.",
+  "author": {
+    "name": "Freedcamp",
+    "url": "https://freedcamp.com"
+  },
+  "keywords": [
+    "freedcamp",
+    "inbox",
+    "artifact",
+    "loop",
+    "n8n",
+    "markdown"
+  ],
+  "license": "MIT",
+  "displayName": "Artifact Wake",
+  "repository": "https://github.com/githubfreedcamp/freedcamp-claude-plugins"
+}
