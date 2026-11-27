@@ -1,5 +1,5 @@
 {
-  "name": "freedcamp",
+  "name": "freedcamp-plugins",
   "owner": {
     "name": "Freedcamp",
     "url": "https://freedcamp.com"
@@ -7,7 +7,7 @@
   "description": "Freedcamp plugins for Claude.",
   "plugins": [
     {
-      "name": "freedcamp",
+      "name": "freedcamp-assistant",
       "source": "./freedcamp-live-dashboard",
       "description": "Manage Freedcamp projects, tasks and updates by name, plus a live \"Your focus today\" dashboard."
     }
